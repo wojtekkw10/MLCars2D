@@ -1,0 +1,15 @@
+24.04.2020
+Co zrobiliśmy w tym tygodniu?
+ - przeprowadziliśmy dogłębny i wnikliwy research odnośnie technologii, których zamierzamy użyć
+ - podzieliliśmy zadania
+ - odbyliśmy spotkanie motywacyjne i namaściliśmy project managera
+Czego nie udało się zrobić, a zostało zaplanowane? 
+ - wszystkie zadania na ten tydzień zostały wykonane
+Co planujemy zrobić w następnym tygodniu? 
+ - zaznajomienie z PyGame
+ - wstępne rysowanie:
+   - samochodzika + fizyka
+   - UI
+Co nas blokuje? Z czym mamy problem?
+ - jeszcze nic, jesteśmy pełni inspiracji i motywacji
+
