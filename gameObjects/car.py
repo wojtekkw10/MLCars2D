@@ -21,7 +21,7 @@ class Car:
     def __init__(self, x, y, screen):
         super().__init__()
 
-        self.image = pygame.image.load('images/car.png')
+        self.image = pygame.image.load('resources/images/car.png')
         self.car_width = self.image.get_width()
         self.car_height = self.image.get_height()
         self.rect = self.image.get_rect()
