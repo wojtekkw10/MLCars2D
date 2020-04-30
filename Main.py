@@ -22,6 +22,7 @@ if __name__ == '__main__':
     gui = GUI(screen, window_width, window_height)
 
     play_button = Button(window_width, gui.title.get_height(), "Play")
+    is_play_button_pressed = False
 
     fps = 200
     clock = pygame.time.Clock()
@@ -43,6 +44,8 @@ if __name__ == '__main__':
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONUP:
                 pass
+            if event.type == pygame.MOUSEBUTTONDOWN and play_button.is_over(pygame.mouse.get_pos()):
+                is_play_button_pressed = True
             keyboardEvents.process(event)
 
         screen.blit(gui.background, (0, 0))
@@ -50,6 +53,9 @@ if __name__ == '__main__':
         play_button.draw(screen)
 
         if play_button.is_over(pygame.mouse.get_pos()):
+            play_button.button_bg = Button.ACTIVE_COLOR
+            
+        if is_play_button_pressed:
             play_button.button_bg = Button.ACTIVE_COLOR
             car.handle_keyboard(keyboardEvents)
             car.update()
