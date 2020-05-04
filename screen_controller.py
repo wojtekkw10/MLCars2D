@@ -1,10 +1,10 @@
 import sys
 import pygame
 from handlers.keyboardEventHandler import KeyboardEventHandler
-from game_objects_manager import GameObjectsManager
+from game_objects_controller import GameObjectsController
 
 
-class ScreenManager:
+class ScreenController:
     def __init__(self):
         super().__init__()
         self.size = self.window_width, self.window_height = 1200, 600
@@ -13,9 +13,9 @@ class ScreenManager:
         pygame.init()
         screen = pygame.display.set_mode(self.size)
 
-        game_objects_manager = GameObjectsManager(self.window_width, self.window_height, screen)
-        game_objects_manager.display_menu()
-        game_objects_manager.prepare_track()
+        game_objects_controller = GameObjectsController(self.window_width, self.window_height, screen)
+        game_objects_controller.display_menu()
+        game_objects_controller.prepare_track()
 
         keyboardEvents = KeyboardEventHandler()
 
@@ -29,9 +29,9 @@ class ScreenManager:
                 if event.type == pygame.MOUSEBUTTONUP:
                     pass
                 keyboardEvents.process(event)
-                game_objects_manager.check_pressed_buttons(event)
+                game_objects_controller.check_pressed_buttons(event)
 
-            game_objects_manager.perform_action(keyboardEvents)
+            game_objects_controller.perform_action(keyboardEvents)
 
             pygame.display.flip()
             clock.tick(fps)

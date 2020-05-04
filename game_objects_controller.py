@@ -3,7 +3,7 @@ from gameObjects.car import Car
 from gameObjects.track import Track
 
 
-class GameObjectsManager:
+class GameObjectsController:
     def __init__(self, window_width, window_height, screen):
         super().__init__()
         self.screen = screen
