@@ -1,7 +1,8 @@
 import pygame
+from gameObjects.button import Button
 
 
-class GUI:
+class Menu:
     def __init__(self, screen, window_width, window_height):
         self.screen = screen
         self.window_width = window_width
@@ -9,10 +10,18 @@ class GUI:
         self.background = pygame.image.load("resources/images/menu_background.jpg")
         self.background = pygame.transform.scale(self.background, (self.window_width, self.window_height))
         self.title = pygame.image.load("resources/images/title.png")
+        self.buttons = {}
         pygame.mixer.music.load('resources/sounds/opening.mp3')
         pygame.mixer.music.play(-1)
 
-    def draw(self, button):
+    def prepare_menu(self):
+        play_button = Button(self.window_width, self.title.get_height(), "Play")
+        self.buttons["play"] = play_button
+
+    def draw(self):
+        self.prepare_menu()
         self.screen.blit(self.background, (0, 0))
         self.screen.blit(self.title, ((self.window_width - self.title.get_width()) // 2, self.title.get_height() // 2))
-        button.draw(self.screen)
+        for button_label in self.buttons:
+            button = self.buttons.get(button_label)
+            button.draw(self.screen)
