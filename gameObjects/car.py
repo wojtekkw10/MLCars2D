@@ -1,8 +1,9 @@
+from angle import Angle
 import pygame
 from math import cos, sin, pi
-from angle import Angle
 
 MAX_RADIANS = 2 * pi
+
 
 def mapped_key(key):
     return {
@@ -50,14 +51,12 @@ class Car:
         if (keyboardEvents.isPressed(mapped_key('d'))):
             self.angle.degree -= 1.0 * Car.DIVIDER_ANGLE
 
-
     def update(self):
         nx = cos(self.angle.radians) * self.speed
         ny = sin(self.angle.radians) * self.speed
 
         self.position_x += nx
         self.position_y += ny * -1
-
 
     def draw(self, surface):
 
@@ -69,39 +68,52 @@ class Car:
 
         self.rotate_car_points()
 
-
     def rotate_car_points(self):
 
         rotation_angle = MAX_RADIANS - self.angle.radians
 
         (fx, fy) = self.position_x + self.car_width/2, self.position_y
-        self.car_points['front'] = self.get_rotated_point(fx, fy, rotation_angle)
+        self.car_points['front'] = self.get_rotated_point(
+            fx, fy, rotation_angle)
 
-        (flx, fly) = self.position_x + self.car_width/2.0, self.position_y - self.car_height/2.0
-        self.car_points['front_left'] = self.get_rotated_point(flx, fly, rotation_angle)
+        (flx, fly) = self.position_x + self.car_width / \
+            2.0, self.position_y - self.car_height/2.0
+        self.car_points['front_left'] = self.get_rotated_point(
+            flx, fly, rotation_angle)
 
-        (frx, fry) = self.position_x + self.car_width/2.0, self.position_y + self.car_height/2.0
-        self.car_points['front_right'] = self.get_rotated_point(frx, fry, rotation_angle)
+        (frx, fry) = self.position_x + self.car_width / \
+            2.0, self.position_y + self.car_height/2.0
+        self.car_points['front_right'] = self.get_rotated_point(
+            frx, fry, rotation_angle)
 
         (rx, ry) = self.position_x - self.car_width/2, self.position_y
-        self.car_points['rear'] = self.get_rotated_point(rx, ry, rotation_angle)
+        self.car_points['rear'] = self.get_rotated_point(
+            rx, ry, rotation_angle)
 
-        (rlx, rly) = self.position_x - self.car_width/2.0, self.position_y - self.car_height/2.0
-        self.car_points['rear_left'] = self.get_rotated_point(rlx, rly, rotation_angle)
+        (rlx, rly) = self.position_x - self.car_width / \
+            2.0, self.position_y - self.car_height/2.0
+        self.car_points['rear_left'] = self.get_rotated_point(
+            rlx, rly, rotation_angle)
 
-        (rrx, rry) = self.position_x - self.car_width / 2.0, self.position_y + self.car_height / 2.0
-        self.car_points['rear_right'] = self.get_rotated_point(rrx, rry, rotation_angle)
+        (rrx, rry) = self.position_x - self.car_width / \
+            2.0, self.position_y + self.car_height / 2.0
+        self.car_points['rear_right'] = self.get_rotated_point(
+            rrx, rry, rotation_angle)
 
         (lx, ly) = self.position_x, self.position_y - self.car_height/2.0
-        self.car_points['left'] = self.get_rotated_point(lx, ly, rotation_angle)
+        self.car_points['left'] = self.get_rotated_point(
+            lx, ly, rotation_angle)
 
         (rx, ry) = self.position_x, self.position_y + self.car_height / 2.0
-        self.car_points['right'] = self.get_rotated_point(rx, ry, rotation_angle)
+        self.car_points['right'] = self.get_rotated_point(
+            rx, ry, rotation_angle)
 
     def get_rotated_point(self, x, y, angle):
 
-        rx =  int(self.position_x + (x - self.position_x) * cos(angle) - (y - self.position_y) * sin(angle))
-        ry = int(self.position_y + (x - self.position_x) * sin(angle) + (y - self.position_y) * cos(angle))
+        rx = int(self.position_x + (x - self.position_x) *
+                 cos(angle) - (y - self.position_y) * sin(angle))
+        ry = int(self.position_y + (x - self.position_x) *
+                 sin(angle) + (y - self.position_y) * cos(angle))
         return (rx, ry)
 
     def detect_collision(self, grid):
