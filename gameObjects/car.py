@@ -57,14 +57,18 @@ class Car:
 
         self.position_x += nx
         self.position_y += ny * -1
+        self.rect[0] = self.position_x
+        self.rect[1] = self.position_y
 
-    def draw(self, surface):
+    def draw(self, surface, camera):
 
         rotated = pygame.transform.rotate(self.image, self.angle.degree)
         rect = rotated.get_rect()
+        #position = pygame.Vector2(self.position_x, self.position_y)
+        #self.screen.blit(rotated, position - (rect.width/2.0, rect.height/2.0))
+        (x,y,w,h) = camera.apply(self)
 
-        position = pygame.Vector2(self.position_x, self.position_y)
-        self.screen.blit(rotated, position - (rect.width/2.0, rect.height/2.0))
+        self.screen.blit(rotated, pygame.Vector2(x-w/2,y-h/2))
 
         self.rotate_car_points()
 
@@ -132,7 +136,7 @@ class Car:
                 self.speed = 0
                 self.position_x += 2
             self.update()
-            self.draw(None)
+            #self.draw(None, None)
 
             if grid[x, y] == 1:
                 return True

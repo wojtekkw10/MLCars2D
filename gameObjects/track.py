@@ -1,6 +1,7 @@
 import pygame
 import numpy as np
 
+
 class Track:
 
     green = (148, 181, 51)
@@ -15,19 +16,17 @@ class Track:
         self.previous_point = self.track_line1_points[0]
         self.initialize_points()
 
-
     def initialize_points(self):
 
         self.track_line1_points = [(0, 20),
-            (466, 25), (798, 165), (1085, 176),
-            (1108, 428), (894, 548), (560, 555),
-            (175, 434), (3, 432)]
-
+                                   (466, 25), (798, 165), (1085, 176),
+                                   (1108, 428), (894, 548), (560, 555),
+                                   (175, 434), (3, 432)]
 
         self.track_line2_points = [(0, 110),
-           (457, 126), (739, 248), (965, 256),
-           (979, 379), (890, 450), (572, 458),
-           (200, 359), (2, 342)]
+                                   (457, 126), (739, 248), (965, 256),
+                                   (979, 379), (890, 450), (572, 458),
+                                   (200, 359), (2, 342)]
 
         self.initialize_track_line(self.track_line1_points)
         self.initialize_track_line(self.track_line2_points)
@@ -61,22 +60,26 @@ class Track:
                 x, y = int(x), int(y)
                 self.grid[x, y] = 1
 
-
-    def draw_track(self):
+    def draw_track(self, camera):
 
         for i in range(len(self.track_line1_points) - 1):
             (x1, y1) = self.track_line1_points[i]
+            (x1, y1, _, _) = camera.apply_on_rect(pygame.Rect(x1, y1, 0, 0))
             (x2, y2) = self.track_line1_points[i + 1]
+            (x2, y2, _, _) = camera.apply_on_rect(pygame.Rect(x2, y2, 0, 0))
             pygame.draw.line(self.screen, self.green, (x1, y1), (x2, y2), 5)
 
         for i in range(len(self.track_line2_points) - 1):
             (x1, y1) = self.track_line2_points[i]
+            (x1, y1, _, _) = camera.apply_on_rect(pygame.Rect(x1, y1, 0, 0))
             (x2, y2) = self.track_line2_points[i + 1]
+            (x2, y2, _, _) = camera.apply_on_rect(pygame.Rect(x2, y2, 0, 0))
             pygame.draw.line(self.screen, self.green, (x1, y1), (x2, y2), 5)
 
     def add_track_point(self, point):
 
-        pygame.draw.line(self.screen, self.green, self.previous_point, point, 5)
+        pygame.draw.line(self.screen, self.green,
+                         self.previous_point, point, 5)
 
         self.track_line1_points.append(point)
         (x1, y1) = self.previous_point
