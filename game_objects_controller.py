@@ -1,3 +1,5 @@
+import pygame
+
 from gameObjects.menu import Menu
 from gameObjects.car import Car
 from gameObjects.track import Track
@@ -37,6 +39,8 @@ class GameObjectsController:
             if button.is_button_pressed:
                 if button_label == "play":
                     self.play_button_action(keyboardEvents)
+                if button_label == "map editor":
+                    self.map_editor_button_action()
 
     def play_button_action(self, keyboardEvents):
         for car in self.cars:
@@ -48,3 +52,10 @@ class GameObjectsController:
                 print("Collision")
 
         self.display_track()
+
+    def map_editor_button_action(self):
+        self.screen.fill((255, 255, 255))
+        font = pygame.font.Font('freesansbold.ttf', 32)
+        text = font.render("Map Editor will be here, it'is a promise", True, (0, 0, 0))
+        textRect = text.get_rect()
+        self.screen.blit(text, textRect)

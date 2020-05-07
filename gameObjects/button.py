@@ -31,7 +31,6 @@ class Button:
 
     def check_is_button_pressed(self, event, screen):
         if self.is_mouse_over(pygame.mouse.get_pos()):
-            print("tak")
             self.button_bg = Button.ACTIVE_COLOR
             self.draw(screen)
             if event.type == pygame.MOUSEBUTTONDOWN and self.is_mouse_over(pygame.mouse.get_pos()):
