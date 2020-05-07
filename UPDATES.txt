@@ -30,3 +30,23 @@ Co planujemy?
  - Refaktorowanie funkcji main
 Co nas blokuje?
  - Nieoptymalne liczenie kolizji
+
+07.05.2020
+Co zrobiliśmy?
+ - Edytor map (nieskończone)
+ - Usprawnianie fizyki + ruch kamery
+ - Podstawowa sieć neuronowa
+ - Algorytm genetyczny
+ - Refaktoryzacja funkcji main
+Czego nie udało się zrobić?
+ - Uniezależnienie prędkości autka od fps
+ - Optymalizacja kolizji
+Co planujemy?
+ - Sensory - Paweł
+ - Serializacja sieci do listy wag - Patryk
+ - Połączenie sieci, algorytmu genetycznego i autka - Wojtek
+ - Dokończenie edytora map - Mateusz
+ - Uniezależnienie prędkości autka od fps - Kuba
+Co nas blokuje?
+ - Brak sensorów w autku
+ - Nieoptymalne liczenie kolizji
