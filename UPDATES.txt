@@ -13,3 +13,20 @@ Co planujemy zrobić w następnym tygodniu?
 Co nas blokuje? Z czym mamy problem?
  - jeszcze nic, jesteśmy pełni inspiracji i motywacji
 
+30.04.2020
+Co zrobiliśmy?
+ - Fizyka + wykrywanie kolizji.
+ - Prosty UI.
+ - Mapa.
+Czego nie udało się zrobić?
+ - wszystkie zadania na ten tydzień zostały wykonane.
+Co planujemy?
+ - Usprawnienie fizyki autek - hamowanie.
+ - Kamera na mapie - skalowanie oraz poruszanie.
+ - Podstawowa sieć neuronowa.
+ - Amortyzacja fps - wyrównywanie wykonywanych klatek programu.
+ - Edytor map - podstawy funkcjonalności.
+ - Algorytm genetyczny
+ - Refaktorowanie funkcji main
+Co nas blokuje?
+ - Nieoptymalne liczenie kolizji

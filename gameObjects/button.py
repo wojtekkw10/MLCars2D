@@ -7,7 +7,7 @@ class Button:
 
     def __init__(self, x, y, label):
         self.label = label
-        self.button_width = 200
+        self.button_width = 250
         self.button_height = 65
         self.button_bg = 211, 211, 211
         self.x = (x - self.button_width) / 2
@@ -31,7 +31,6 @@ class Button:
 
     def check_is_button_pressed(self, event, screen):
         if self.is_mouse_over(pygame.mouse.get_pos()):
-            print("tak")
             self.button_bg = Button.ACTIVE_COLOR
             self.draw(screen)
             if event.type == pygame.MOUSEBUTTONDOWN and self.is_mouse_over(pygame.mouse.get_pos()):
