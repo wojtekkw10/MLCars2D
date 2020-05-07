@@ -16,7 +16,10 @@ class Menu:
 
     def prepare_menu(self):
         play_button = Button(self.window_width, self.title.get_height(), "Play")
+        map_editor_button = Button(self.window_width, self.title.get_height()
+                                   + play_button.button_height, "Map Editor")
         self.buttons["play"] = play_button
+        self.buttons["map editor"] = map_editor_button
 
     def draw(self):
         self.prepare_menu()

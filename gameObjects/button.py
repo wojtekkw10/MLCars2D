@@ -7,7 +7,7 @@ class Button:
 
     def __init__(self, x, y, label):
         self.label = label
-        self.button_width = 200
+        self.button_width = 250
         self.button_height = 65
         self.button_bg = 211, 211, 211
         self.x = (x - self.button_width) / 2
