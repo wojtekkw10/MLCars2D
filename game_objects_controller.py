@@ -3,6 +3,8 @@ import pygame
 from gameObjects.menu import Menu
 from gameObjects.car import Car
 from gameObjects.track import Track
+from handlers.camera import Camera
+import pygame
 
 
 class GameObjectsController:
@@ -15,6 +17,28 @@ class GameObjectsController:
         self.track = Track(self.screen)
         self.is_some_action_going_on = False
 
+        def simple_camera(camera, target_rect):
+            l, t, _, _ = target_rect  # l = left,  t = top
+            _, _, w, h = camera      # w = width, h = height
+            return pygame.Rect(-l+window_width/2, -t+window_height/2, w, h)
+
+        def complex_camera(camera, target_rect):
+            # we want to center target_rect
+            x = -target_rect.center[0] + window_width/2
+            y = -target_rect.center[1] + window_height/2
+            # move the camera. Let's use some vectors so we can easily substract/multiply
+            # add some smoothness coolnes
+            camera.topleft += (pygame.Vector2((x, y)) -
+                               pygame.Vector2(camera.topleft)) * 0.06
+            # set max/min x/y so we don't see stuff outside the world
+            camera.x = max(-(camera.width-window_width), min(0, camera.x))
+            camera.y = max(-(camera.height-window_height), min(0, camera.y))
+
+            return camera
+
+        self.camera = Camera(
+            complex_camera, self.window_width+100, self.window_height+100)  # insert track size here
+
     # for adjusting menu in the future
     def display_menu(self):
         self.menu.draw()
@@ -25,9 +49,9 @@ class GameObjectsController:
     def display_track(self):
         grey = (56, 59, 56)
         self.screen.fill(grey)
-        self.track.draw_track()
+        self.track.draw_track(self.camera)
         for car in self.cars:
-            car.draw(self.screen)
+            car.draw(self.screen, self.camera)
 
     def check_pressed_buttons(self, event):
         if not self.is_some_action_going_on:
@@ -49,7 +73,9 @@ class GameObjectsController:
         for car in self.cars:
             car.handle_keyboard(keyboardEvents)
             car.update()
-            car_position_x, car_position_y = int(car.position_x), int(car.position_y)
+            car_position_x, car_position_y = int(
+                car.position_x), int(car.position_y)
+            self.camera.update(car)
 
             if car.detect_collision(self.track.grid):
                 print("Collision")
@@ -62,3 +88,4 @@ class GameObjectsController:
         text = font.render("Map Editor will be here, it'is a promise", True, (0, 0, 0))
         textRect = text.get_rect()
         self.screen.blit(text, textRect)
+
