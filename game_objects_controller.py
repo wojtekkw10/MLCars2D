@@ -75,17 +75,17 @@ class GameObjectsController:
             car.update()
             car_position_x, car_position_y = int(
                 car.position_x), int(car.position_y)
-            self.camera.update(car)
 
             if car.detect_collision(self.track.grid):
                 print("Collision")
+            self.camera.update(car)
 
         self.display_track()
 
     def map_editor_button_action(self):
         self.screen.fill((255, 255, 255))
         font = pygame.font.Font('freesansbold.ttf', 32)
-        text = font.render("Map Editor will be here, it'is a promise", True, (0, 0, 0))
+        text = font.render(
+            "Map Editor will be here, it'is a promise", True, (0, 0, 0))
         textRect = text.get_rect()
         self.screen.blit(text, textRect)
-

@@ -1,6 +1,7 @@
 from angle import Angle
 import pygame
 from math import cos, sin, pi
+from sensors import Sensors
 
 MAX_RADIANS = 2 * pi
 
@@ -38,6 +39,7 @@ class Car:
         self.max_speed = 0.1
         self.braking = 0.0  # axis [0.0,1.0]
         self.turn = 0.0  # axis [-1.0,1.0]
+        self.sensors = Sensors()
 
     def handle_keyboard(self, keyboardEvents):
         if(keyboardEvents.isPressed(mapped_key('w'))):
@@ -67,7 +69,8 @@ class Car:
         else:
             self.turn *= 0.1
 
-    def update(self):
+    # Just like in Unity Engine, we call fixed_update an physics update
+    def fixed_update(self):
         if self.braking > 0.0:
             inital = self.speed
 
@@ -75,10 +78,10 @@ class Car:
                 self.speed -= self.braking * Car.DIVIDER_BREAK
                 if self.speed < 0.0:
                     self.speed = 0.0
-            elif inital < 0.0:
-                self.speed += self.braking * Car.DIVIDER_BREAK
-                if self.speed > 0.0:
-                    self.speed = 0.0
+                elif inital < 0.0:
+                    self.speed += self.braking * Car.DIVIDER_BREAK
+                    if self.speed > 0.0:
+                        self.speed = 0.0
 
         if self.turn != 0.0:
             if self.speed + 0.01 > self.max_speed:
@@ -97,15 +100,21 @@ class Car:
         self.rect[0] = self.position_x
         self.rect[1] = self.position_y
 
-    def draw(self, surface, camera):
+    def update(self):
+        self.fixed_update()
 
+        self.sensors.setup_sensors(
+            self.angle, pygame.Vector2(self.position_x, self.position_y))
+
+    def draw(self, surface, camera):
         rotated = pygame.transform.rotate(self.image, self.angle.degree)
         rect = rotated.get_rect()
         # position = pygame.Vector2(self.position_x, self.position_y)
         # self.screen.blit(rotated, position - (rect.width/2.0, rect.height/2.0))
         (x, y, w, h) = camera.apply(self)
-
         self.screen.blit(rotated, pygame.Vector2(x-w/2, y-h/2))
+
+        self.sensors.draw_sensors(surface, camera)
 
         self.rotate_car_points()
 
@@ -158,6 +167,7 @@ class Car:
         return (rx, ry)
 
     def detect_collision(self, grid):
+        self.sensors.check_collision(grid)
 
         for (x, y) in self.car_points.values():
             if y >= self.screen.get_height()-2:
@@ -172,7 +182,8 @@ class Car:
             if x <= 2:
                 self.speed = 0
                 self.position_x += 2
-            self.update()
+            self.fixed_update()  # ta linijka kodu, zabrała mi 2 godziny życia - update powinien być callowany raz na pętle główną programu,
+            # a inne zmiany robione inną funkcją; zmieniłem na fixed_update
             # self.draw(None, None)
 
             if grid[x, y] == 1:
