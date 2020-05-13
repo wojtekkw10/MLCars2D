@@ -77,7 +77,7 @@ class SensorData:
 
     @property
     def vector(self):
-        #print('access', pygame.Vector2(self.x, self.y))
+        # print('access', pygame.Vector2(self.x, self.y))
         return pygame.Vector2(self.x, self.y)
 
 
@@ -125,3 +125,10 @@ class Sensors:
             else:
                 pygame.draw.aaline(surface, SENSORS_COLOR_INACTIVE, (origin.x,
                                                                      origin.y), (line_vector.x, line_vector.y), 2)
+
+    def get_states_of_sensors(self):
+        sensor_states = []
+        for line in self.lines:
+            sensor_state = self.detected[line].detected
+            sensor_states.append(sensor_state)
+        return sensor_states

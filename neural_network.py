@@ -50,6 +50,7 @@ class CarNeuralNetwork:
         return self.value
 
     def set_weight_list(self, weight_arr):
+        weight_arr = weight_arr.copy()
         shape = self.shape_matrix
         for i in range(len(shape)-1):
             self.weight_matrix[i] = np.array(weight_arr[0:shape[i]])
@@ -70,6 +71,7 @@ class CarNeuralNetwork:
 
 car_brain = CarNeuralNetwork(1, [3, 4, 4, 2])
 distances = [0, 3, 2]
-output = car_brain.calc(distances)
+car_brain.calc(distances)
+
 
 

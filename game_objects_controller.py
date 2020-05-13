@@ -1,5 +1,6 @@
 import pygame
 
+from angle import Angle
 from gameObjects.menu import Menu
 from gameObjects.car import Car
 from gameObjects.track import Track
@@ -16,6 +17,7 @@ class GameObjectsController:
         self.menu = Menu(self.screen, self.window_width, self.window_height)
         self.track = Track(self.screen)
         self.is_some_action_going_on = False
+        self.play_action_frame_count = 1
 
         def simple_camera(camera, target_rect):
             l, t, _, _ = target_rect  # l = left,  t = top
@@ -43,8 +45,23 @@ class GameObjectsController:
     def display_menu(self):
         self.menu.draw()
 
-    def prepare_track(self):
-        self.cars.append(Car(50, 60, self.screen))
+    def initialize_track_with_random_cars(self):
+        self.cars = []
+        for _ in range(50):
+            self.cars.append(Car(50, 60, self.screen))
+
+    def reinitialize_cars(self, offspring):
+        self.cars = []
+        for _ in range(50):
+            self.cars.append(Car(50, 60, self.screen))
+        for car, weights in zip(self.cars, offspring):
+            car.neural_network.set_weight_list(weights)
+
+    def get_car_distances(self):
+        distances = []
+        for car in self.cars:
+            distances.append(car.distance_traveled)
+        return distances
 
     def display_track(self):
         grey = (56, 59, 56)
@@ -70,17 +87,23 @@ class GameObjectsController:
                     self.map_editor_button_action()
 
     def play_button_action(self, keyboardEvents):
+        self.play_action_frame_count += 1
+        self.update_simulation()
+        self.display_track()
+
+    def update_simulation(self):
         for car in self.cars:
-            car.handle_keyboard(keyboardEvents)
+            # car.handle_keyboard(keyboardEvents)
+            car.handle_neural_network()
+            # print(len(car.neural_network.get_weight_list()))
+
             car.update()
             car_position_x, car_position_y = int(
                 car.position_x), int(car.position_y)
 
-            if car.detect_collision(self.track.grid):
-                print("Collision")
+            car.detect_collision(self.track.grid)
+            #    print("Collision")
             self.camera.update(car)
-
-        self.display_track()
 
     def map_editor_button_action(self):
         self.screen.fill((255, 255, 255))

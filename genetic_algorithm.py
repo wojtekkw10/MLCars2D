@@ -4,6 +4,7 @@ from deap import creator, base, tools, algorithms
 
 
 class GeneticAlgorithm:
+    # Cross and mutate should be always called before select
     def __init__(self, number_of_weights, population_size, tournament_size, mutation_prb):
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", list, fitness=creator.FitnessMax)
@@ -20,11 +21,11 @@ class GeneticAlgorithm:
 
         self.offspring = None
 
-    def get_current_offspring(self):
+    def perform_crossing_and_mutation(self):
         self.offspring = algorithms.varAnd(self.population, self.toolbox, cxpb=0.5, mutpb=0.1)
         return self.offspring
 
-    def evolve(self, fits):
+    def perform_selection(self, fits):
         for fit, ind in zip(fits, self.offspring):
             ind.fitness.values = fit
         self.population = self.toolbox.select(self.offspring, k=len(self.population))
@@ -34,21 +35,25 @@ class GeneticAlgorithm:
         return _top
 
 
-# ------------------------------------------------
-# ----------------USAGE EXAMPLE ------------------
-# ------------------------------------------------
-def eval_one_max(individual):
-    return (sum(individual),)
+if __name__ == '__main__':
+    # ------------------------------------------------
+    # ----------------USAGE EXAMPLE ------------------
+    # ------------------------------------------------
+    def eval_one_max(individual):
+        return (sum(individual),)
 
 
-number_of_generations = 100
-ga = GeneticAlgorithm(number_of_weights=2, population_size=1000, tournament_size=2, mutation_prb=0.05)
+    number_of_generations = 10000
+    ga = GeneticAlgorithm(number_of_weights=2, population_size=3, tournament_size=2, mutation_prb=0.05)
 
-for _ in range(number_of_generations):
-    offspring = ga.get_current_offspring()
-    fitness_scores = map(eval_one_max, offspring)
-    ga.evolve(fitness_scores)
-    top = ga.select_best(3)
-    print(top)
+    for _ in range(number_of_generations):
+        offspring = ga.perform_crossing_and_mutation()
+        fitness_scores = map(eval_one_max, offspring)
+        print(list(fitness_scores))
+        ga.perform_selection(fitness_scores)
+        top = ga.select_best(3)
+
+
+
 
 
