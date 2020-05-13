@@ -17,11 +17,12 @@ class ScreenController:
 
         game_objects_controller = GameObjectsController(self.window_width, self.window_height, screen)
         game_objects_controller.display_menu()
+        game_objects_controller.number_of_cars = 4
         game_objects_controller.initialize_track_with_random_cars()
 
         keyboardEvents = KeyboardEventHandler()
 
-        genetic_algorithm = GeneticAlgorithm(125, 50, 40, 0.05)
+        genetic_algorithm = GeneticAlgorithm(125, game_objects_controller.number_of_cars, 40, 0.05)
         population = genetic_algorithm.perform_crossing_and_mutation()
         print("POP1")
         print(population)
@@ -31,13 +32,16 @@ class ScreenController:
         clock = pygame.time.Clock()
         fps = 200
 
-        simulation_length = 100
+        simulation_length = 600
 
         # I should use timers but I don't know how they work in PyGame
         # Everything is based on this loop anyway so I might as well use it - Wojtek
         while True:
             if game_objects_controller.play_action_frame_count % simulation_length == 0:
-                for _ in range(100):
+                for _ in range(5):
+                    game_objects_controller.reinitialize_cars(population)
+                    for _ in range(simulation_length):
+                        game_objects_controller.update_simulation()
                     distances = game_objects_controller.get_car_distances()
                     print(distances)
                     print(sum(distances) / (len(distances)))  # print average distance
@@ -49,12 +53,9 @@ class ScreenController:
                                 return distance,
 
                     learning_data = map(distance_mapper, population)
-                    print(list(learning_data))
                     genetic_algorithm.perform_selection(learning_data)
                     population = genetic_algorithm.perform_crossing_and_mutation()
-                    game_objects_controller.reinitialize_cars(population)
-                    for _ in range(simulation_length):
-                        game_objects_controller.update_simulation()
+
 
 
             for event in pygame.event.get():

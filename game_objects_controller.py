@@ -18,6 +18,7 @@ class GameObjectsController:
         self.track = Track(self.screen)
         self.is_some_action_going_on = False
         self.play_action_frame_count = 1
+        self.number_of_cars = 0
 
         def simple_camera(camera, target_rect):
             l, t, _, _ = target_rect  # l = left,  t = top
@@ -47,12 +48,12 @@ class GameObjectsController:
 
     def initialize_track_with_random_cars(self):
         self.cars = []
-        for _ in range(50):
+        for _ in range(self.number_of_cars):
             self.cars.append(Car(50, 60, self.screen))
 
     def reinitialize_cars(self, offspring):
         self.cars = []
-        for _ in range(50):
+        for _ in range(self.number_of_cars):
             self.cars.append(Car(50, 60, self.screen))
         for car, weights in zip(self.cars, offspring):
             car.neural_network.set_weight_list(weights)
@@ -95,7 +96,6 @@ class GameObjectsController:
         for car in self.cars:
             # car.handle_keyboard(keyboardEvents)
             car.handle_neural_network()
-            # print(len(car.neural_network.get_weight_list()))
 
             car.update()
             car_position_x, car_position_y = int(

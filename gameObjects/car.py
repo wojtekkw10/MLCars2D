@@ -241,7 +241,7 @@ class Car:
             # self.draw(None, None)
 
             if grid[x, y] == 1:
-                self.distance_traveled -= 10  # distance penalty for collision
+                self.distance_traveled -= 100  # distance penalty for collision
                 return True
 
         return False
