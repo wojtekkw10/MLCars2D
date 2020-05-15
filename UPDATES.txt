@@ -50,3 +50,24 @@ Co planujemy?
 Co nas blokuje?
  - Brak sensorów w autku
  - Nieoptymalne liczenie kolizji
+
+15.05.2020
+Co zrobiliśmy?
+ - Sensory
+ - Serializacja sieci neuronowej
+ - Połączenie wszystkiego w całość
+ - Szybsze kolizje
+ - edytor map
+Czego nie udało się zrobić?
+ - brak
+Co planujemy?
+ - refaktoryzacja kodu - lepsza architektura - Paweł
+ - bug - brak wykrywania kolizji, gdy nie rysowana jest grafika - Kuba
+ - zmiana sposobu liczenia fitnessu autka - Wojtek
+ - połączenie edytora z programem - Mateusz
+ - wielowątkowość - Wojtek
+ - zapisywanie populacji do pliku co generację - Wojtek
+ - Wyświetlanie historii statystyk autek - Patryk
+Co nas blokuje?
+ - Nic
+
