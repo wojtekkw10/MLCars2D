@@ -9,7 +9,12 @@ class MapEditor:
 
     def draw_editor(self):
         if self.clean:
-            self.screen.fill((255, 255, 255))
+            self.screen.fill((56, 59, 56))
+            font = pygame.font.Font('freesansbold.ttf', 16)
+            text = font.render("If you want to save your map, press 's'. If you want load saved map, press 'l'"
+                               , True, (255,255,255))
+            textRect = text.get_rect()
+            self.screen.blit(text, textRect)
             self.clean = False
 
     def draw_map(self, keyboard_events):
