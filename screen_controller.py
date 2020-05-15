@@ -4,12 +4,13 @@ import pygame
 from genetic_algorithm import GeneticAlgorithm
 from handlers.keyboardEventHandler import KeyboardEventHandler
 from game_objects_controller import GameObjectsController
+import constants
 
 
 class ScreenController:
     def __init__(self):
         super().__init__()
-        self.size = self.window_width, self.window_height = 1200, 600
+        self.size = self.window_width, self.window_height = constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT
 
     def display(self):
         pygame.init()
@@ -17,7 +18,7 @@ class ScreenController:
 
         game_objects_controller = GameObjectsController(self.window_width, self.window_height, screen)
         game_objects_controller.display_menu()
-        game_objects_controller.number_of_cars = 4
+        game_objects_controller.number_of_cars = constants.CARS_NO
         game_objects_controller.initialize_track_with_random_cars()
 
         keyboardEvents = KeyboardEventHandler()
@@ -30,7 +31,7 @@ class ScreenController:
         game_objects_controller.reinitialize_cars(population)
 
         clock = pygame.time.Clock()
-        fps = 200
+        fps = constants.FPS
 
         simulation_length = 600
 

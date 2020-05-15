@@ -18,5 +18,7 @@ class Camera(object):
         return line
 
     def update(self, target):
-        # print(self.state.topleft)
         self.state = self.camera_func(self.state, target.rect)
+
+    def get_state(self):
+        return self.state.topleft
