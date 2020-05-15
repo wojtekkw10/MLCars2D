@@ -6,6 +6,7 @@ from gameObjects.car import Car
 from gameObjects.track import Track
 from handlers.camera import Camera
 import pygame
+import sys
 
 
 class GameObjectsController:
@@ -65,8 +66,8 @@ class GameObjectsController:
         return distances
 
     def display_track(self):
-        grey = (56, 59, 56)
-        self.screen.fill(grey)
+        background_color = (186, 193, 204)
+        self.screen.fill(background_color)
         self.track.draw_track(self.camera)
         for car in self.cars:
             car.draw(self.screen, self.camera)
@@ -101,9 +102,10 @@ class GameObjectsController:
             car_position_x, car_position_y = int(
                 car.position_x), int(car.position_y)
 
-            car.detect_collision(self.track.grid)
-            #    print("Collision")
+
+            car.detect_collision(self.track.grid, self.track.sectors)
             self.camera.update(car)
+
 
     def map_editor_button_action(self):
         self.screen.fill((255, 255, 255))

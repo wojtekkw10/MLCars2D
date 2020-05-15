@@ -1,11 +1,10 @@
 from angle import Angle
 import pygame
-from math import cos, sin, pi, sqrt
+from math import cos, sin, sqrt
 
 from neural_network import CarNeuralNetwork
 from sensors import Sensors
-
-MAX_RADIANS = 2 * pi
+import constants
 
 
 def mapped_key(key):
@@ -38,11 +37,37 @@ def find_index_of_max_value(container):
     return max_item_index
 
 
+def get_line_points(point1, point2):
+
+    (x1, y1), (x2, y2) = point1, point2
+
+    if x1 != x2:
+        a = (y2 - y1) / (x2 - x1)
+
+        if x2 > x1:
+            start, end = x1, x2
+        else:
+            start, end = x2, x1
+
+        for x in range(start, end):
+            y = int(a * (x - x1) + y1)
+            yield (x, y)
+
+    elif y1 != y2:
+
+        a = (x2 - x1) / (y2 - y1)
+
+        if y2 > y1:
+            start, end = y1, y2
+        else:
+            start, end = y2, y1
+
+        for y in range(start, end):
+            x = int(a * (y - y1) + x1)
+            yield (x, y)
+
+
 class Car:
-    DIVIDER_SPEED = 0.0001
-    DIVIDER_BREAK = 0.0001
-    DIVIDER_ANGLE_INPUT = 0.01
-    DIVIDER_ANGLE = 0.05
 
     def __init__(self, x, y, screen):
         super().__init__()
@@ -56,14 +81,17 @@ class Car:
         self.position_y = y
         self.speed = 0.0
         self.angle = Angle(0)  # 0 is E, 90 is N, 180 is W, 270 is S
+        self.car_center_x = int(x + self.car_width/2)
+        self.car_center_y = int(y +self.car_height/2)
         self.car_points = {}
         self.rotate_car_points()
-        self.max_speed = 0.1
+        self.max_speed = constants.MAX_SPEED
         self.braking = 0.0  # axis [0.0,1.0]
         self.turn = 0.0  # axis [-1.0,1.0]
         self.sensors = Sensors()
         self.neural_network = CarNeuralNetwork(1, [5, 10, 6])
         self.distance_traveled = 0
+
 
     def handle_neural_network(self):
         sensor_states = self.sensors.get_states_of_sensors()
@@ -80,7 +108,7 @@ class Car:
             if self.braking < 0.0:
                 self.braking = 0.0
 
-            self.speed += 1.0 * Car.DIVIDER_SPEED
+            self.speed += 1.0 * constants.DIVIDER_SPEED
             if self.speed > self.max_speed:
                 self.speed = self.max_speed
         elif input == 's':
@@ -123,11 +151,11 @@ class Car:
             initial = self.speed
 
             if initial > 0.0:
-                self.speed -= self.braking * Car.DIVIDER_BREAK
+                self.speed -= self.braking * constants.DIVIDER_BREAK
                 if self.speed < 0.0:
                     self.speed = 0.0
                 elif initial < 0.0:
-                    self.speed += self.braking * Car.DIVIDER_BREAK
+                    self.speed += self.braking * constants.DIVIDER_BREAK
                     if self.speed > 0.0:
                         self.speed = 0.0
 
@@ -137,7 +165,7 @@ class Car:
             else:
                 speed_var = (self.speed + 0.01) / self.max_speed
 
-            self.angle.degree -= 1.0 * Car.DIVIDER_ANGLE * \
+            self.angle.degree -= 1.0 * constants.DIVIDER_ANGLE * \
                 (1.0 - self.braking) * self.turn * speed_var
 
         nx = cos(self.angle.radians) * self. speed
@@ -157,91 +185,100 @@ class Car:
             self.angle, pygame.Vector2(self.position_x, self.position_y))
 
     def draw(self, surface, camera):
+
         rotated = pygame.transform.rotate(self.image, self.angle.degree)
-        rect = rotated.get_rect()
-        # position = pygame.Vector2(self.position_x, self.position_y)
-        # self.screen.blit(rotated, position - (rect.width/2.0, rect.height/2.0))
         (x, y, w, h) = camera.apply(self)
         self.screen.blit(rotated, pygame.Vector2(x-w/2, y-h/2))
 
         self.sensors.draw_sensors(surface, camera)
 
+        rect = rotated.get_rect().move(pygame.Vector2(x - w / 2, y - h / 2))
+        self.car_center_x, self.car_center_y = rect.center
         self.rotate_car_points()
+
 
     def rotate_car_points(self):
 
-        rotation_angle = MAX_RADIANS - self.angle.radians
+        rotation_angle = constants.MAX_RADIANS - self.angle.radians
 
-        (fx, fy) = self.position_x + self.car_width/2, self.position_y
-        self.car_points['front'] = self.get_rotated_point(
-            fx, fy, rotation_angle)
-
-        (flx, fly) = self.position_x + self.car_width / \
-            2.0, self.position_y - self.car_height/2.0
+        (flx, fly) = self.car_center_x + self.car_width / \
+                     2.0, self.car_center_y - self.car_height / 2.0
         self.car_points['front_left'] = self.get_rotated_point(
             flx, fly, rotation_angle)
 
-        (frx, fry) = self.position_x + self.car_width / \
-            2.0, self.position_y + self.car_height/2.0
+        (frx, fry) = self.car_center_x + self.car_width / \
+                     2.0, self.car_center_y + self.car_height / 2.0
         self.car_points['front_right'] = self.get_rotated_point(
             frx, fry, rotation_angle)
 
-        (rx, ry) = self.position_x - self.car_width/2, self.position_y
-        self.car_points['rear'] = self.get_rotated_point(
-            rx, ry, rotation_angle)
-
-        (rlx, rly) = self.position_x - self.car_width / \
-            2.0, self.position_y - self.car_height/2.0
+        (rlx, rly) = self.car_center_x - self.car_width / \
+                     2.0, self.car_center_y - self.car_height / 2.0
         self.car_points['rear_left'] = self.get_rotated_point(
             rlx, rly, rotation_angle)
 
-        (rrx, rry) = self.position_x - self.car_width / \
-            2.0, self.position_y + self.car_height / 2.0
+        (rrx, rry) = self.car_center_x - self.car_width / \
+                     2.0, self.car_center_y + self.car_height / 2.0
         self.car_points['rear_right'] = self.get_rotated_point(
             rrx, rry, rotation_angle)
 
-        (lx, ly) = self.position_x, self.position_y - self.car_height/2.0
-        self.car_points['left'] = self.get_rotated_point(
-            lx, ly, rotation_angle)
-
-        (rx, ry) = self.position_x, self.position_y + self.car_height / 2.0
-        self.car_points['right'] = self.get_rotated_point(
-            rx, ry, rotation_angle)
 
     def get_rotated_point(self, x, y, angle):
 
-        rx = int(self.position_x + (x - self.position_x) *
-                 cos(angle) - (y - self.position_y) * sin(angle))
-        ry = int(self.position_y + (x - self.position_x) *
-                 sin(angle) + (y - self.position_y) * cos(angle))
+        rx = int(self.car_center_x + (x - self.car_center_x) *
+                 cos(angle) - (y - self.car_center_y) * sin(angle))
+        ry = int(self.car_center_y + (x - self.car_center_x) *
+                 sin(angle) + (y - self.car_center_y) * cos(angle))
         return (rx, ry)
 
-    def detect_collision(self, grid):
+    def detect_collision(self, grid, sectors):
+
+        self.fixed_update()
         self.sensors.check_collision(grid)
 
-        for (x, y) in self.car_points.values():
-            if y >= self.screen.get_height()-2:
-                self.speed = 0
-                self.position_y -= 2
-                self.distance_traveled -= 2
-            if y <= 2:
-                self.speed = 0
-                self.position_y += 2
-                self.distance_traveled -= 2
-            if x >= self.screen.get_width()-2:
-                self.speed = 0
-                self.position_x -= 2
-                self.distance_traveled -= 2
-            if x <= 2:
-                self.speed = 0
-                self.position_x += 2
-                self.distance_traveled -= 2
-            self.fixed_update()  # ta linijka kodu, zabrała mi 2 godziny życia - update powinien być callowany raz na pętle główną programu,
-            # a inne zmiany robione inną funkcją; zmieniłem na fixed_update
-            # self.draw(None, None)
+        end_points = [(self.car_points['front_left'], self.car_points['rear_left']),
+                      (self.car_points['front_left'], self.car_points['front_right']),
+                      (self.car_points['front_right'], self.car_points['rear_right']),
+                      (self.car_points['rear_left'], self.car_points['rear_right'])]
 
-            if grid[x, y] == 1:
-                self.distance_traveled -= 100  # distance penalty for collision
-                return True
+        for end_point in end_points:
+
+            for point in get_line_points(end_point[0], end_point[1]):
+
+                if self.check_boundries(point):
+                    return True
+
+                (x, y) = point
+                x_sector = x // constants.X_SECTOR_SIZE
+                y_sector = y // constants.Y_SECTOR_SIZE
+                if (x, y) in sectors[y_sector][x_sector]:
+                    self.distance_traveled -= 100  # distance penalty for collision
+                    return True
+
+        return False
+
+
+    def check_boundries(self, point):
+
+        (x, y) = point
+        if y >= self.screen.get_height() - 2:
+            self.speed = 0
+            self.position_y -= 2
+            self.distance_traveled -= 2
+            return True
+        if y <= 2:
+            self.speed = 0
+            self.position_y += 2
+            self.distance_traveled -= 2
+            return True
+        if x >= self.screen.get_width() - 2:
+            self.speed = 0
+            self.position_x -= 2
+            self.distance_traveled -= 2
+            return True
+        if x <= 2:
+            self.speed = 0
+            self.position_x += 2
+            self.distance_traveled -= 2
+            return True
 
         return False

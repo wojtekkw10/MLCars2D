@@ -2,8 +2,8 @@ import pygame
 
 
 class Button:
-    BG_COLOR = 211, 211, 211
-    ACTIVE_COLOR = 0, 100, 100
+    BG_COLOR = 255, 255, 255
+    ACTIVE_COLOR = 211, 211, 211
 
     def __init__(self, x, y, label):
         self.label = label

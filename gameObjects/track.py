@@ -1,10 +1,11 @@
 import pygame
 import numpy as np
+import constants
 
 
 class Track:
 
-    green = (148, 181, 51)
+    # green = (148, 181, 51)
 
     def __init__(self, screen, track_width=100):
 
@@ -13,8 +14,10 @@ class Track:
         self.grid = np.zeros(self.screen.get_size())
         self.track_line1_points = [(0, 20)]
         self.track_line2_points = []
-        self.previous_point = self.track_line1_points[0]
+        # self.previous_point = self.track_line1_points[0]
+        self.sectors = [[[] for _ in range(constants.X_SECTOR_NO)] for _ in range(constants.Y_SECTOR_NO)]
         self.initialize_points()
+        self.camera_state = (0, 0)
 
     def initialize_points(self):
 
@@ -28,68 +31,90 @@ class Track:
                                    (979, 379), (890, 450), (572, 458),
                                    (200, 359), (2, 342)]
 
-        self.initialize_track_line(self.track_line1_points)
-        self.initialize_track_line(self.track_line2_points)
+        # self.initialize_track_line(self.track_line1_points)
+        # self.initialize_track_line(self.track_line2_points)
 
-    def initialize_track_line(self, track_line):
 
-        for i in range(len(track_line) - 1):
+    def initialize_line_sector(self, point1, point2):
 
-            (x1, y1) = track_line[i]
-            (x2, y2) = track_line[i + 1]
+        (x1, y1) = point1
+        (x2, y2) = point2
 
-            a = (y2 - y1) / (x2 - x1)
+        a = (y2 - y1) / (x2 - x1)
 
-            if x2 > x1:
-                start, end = x1, x2
-            else:
-                start, end = x2, x1
+        if x2 > x1:
+            start, end = x1, x2
+        else:
+            start, end = x2, x1
 
-            for x in range(start, end):
-                y = a * (x - x1) + y1
-                x, y = int(x), int(y)
-                self.grid[x, y] = 1
+        for x in range(start, end):
+            y = a * (x - x1) + y1
+            x, y = int(x), int(y)
+            self.grid[x, y] = 1
+            x_sector = x // constants.X_SECTOR_SIZE
+            y_sector = y // constants.Y_SECTOR_SIZE
+            self.sectors[y_sector][x_sector].append((x, y))
 
-            if y2 > y1:
-                start, end = y1, y2
-            else:
-                start, end = y2, y1
+        if y2 > y1:
+            start, end = y1, y2
+        else:
+            start, end = y2, y1
 
-            for y in range(start, end):
-                x = (y - y1)/a + x1
-                x, y = int(x), int(y)
-                self.grid[x, y] = 1
+        for y in range(start, end):
+            a = (x2 - x1) / (y2 - y1)
+            x = a * (y - y1) + x1
+            x, y = int(x), int(y)
+            self.grid[x, y] = 1
+            x_sector = x // constants.X_SECTOR_SIZE
+            y_sector = y // constants.Y_SECTOR_SIZE
+            self.sectors[y_sector][x_sector].append((x, y))
+
 
     def draw_track(self, camera):
+
+        track_line_color = (62, 67, 74)
+        line_thickness = 7
+
+        if self.camera_state != camera.get_state:
+            self.sectors = [[[] for _ in range(constants.X_SECTOR_NO)] for _ in range(constants.Y_SECTOR_NO)]
 
         for i in range(len(self.track_line1_points) - 1):
             (x1, y1) = self.track_line1_points[i]
             (x1, y1, _, _) = camera.apply_on_rect(pygame.Rect(x1, y1, 0, 0))
             (x2, y2) = self.track_line1_points[i + 1]
             (x2, y2, _, _) = camera.apply_on_rect(pygame.Rect(x2, y2, 0, 0))
-            pygame.draw.line(self.screen, self.green, (x1, y1), (x2, y2), 5)
+            pygame.draw.line(self.screen, track_line_color, (x1, y1), (x2, y2), line_thickness)
+
+            if self.camera_state != camera.get_state:
+                self.initialize_line_sector((x1, y1), (x2, y2))
 
         for i in range(len(self.track_line2_points) - 1):
             (x1, y1) = self.track_line2_points[i]
             (x1, y1, _, _) = camera.apply_on_rect(pygame.Rect(x1, y1, 0, 0))
             (x2, y2) = self.track_line2_points[i + 1]
             (x2, y2, _, _) = camera.apply_on_rect(pygame.Rect(x2, y2, 0, 0))
-            pygame.draw.line(self.screen, self.green, (x1, y1), (x2, y2), 5)
+            pygame.draw.line(self.screen, track_line_color, (x1, y1), (x2, y2), line_thickness)
 
-    def add_track_point(self, point):
+            if self.camera_state != camera.get_state:
+                self.initialize_line_sector((x1, y1), (x2, y2))
 
-        pygame.draw.line(self.screen, self.green,
-                         self.previous_point, point, 5)
+        if self.camera_state != camera.get_state:
+            self.camera_state = camera.get_state()
 
-        self.track_line1_points.append(point)
-        (x1, y1) = self.previous_point
-        (x2, y2) = point
-
-        a = (y2 - y1) / (x2 - x1)
-
-        for x in range(x1, x2):
-            y = a * (x - x1) + y1
-            x, y = int(x), int(y)
-            self.grid[x, y] = 1
-
-        self.previous_point = point
+    # def add_track_point(self, point):
+    #
+    #     pygame.draw.line(self.screen, self.green,
+    #                      self.previous_point, point, 5)
+    #
+    #     self.track_line1_points.append(point)
+    #     (x1, y1) = self.previous_point
+    #     (x2, y2) = point
+    #
+    #     a = (y2 - y1) / (x2 - x1)
+    #
+    #     for x in range(x1, x2):
+    #         y = a * (x - x1) + y1
+    #         x, y = int(x), int(y)
+    #         self.grid[x, y] = 1
+    #
+    #     self.previous_point = point
