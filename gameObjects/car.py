@@ -1,6 +1,9 @@
 from angle import Angle
 import pygame
-from math import cos, sin, pi
+from math import cos, sin, pi, sqrt
+
+from neural_network import CarNeuralNetwork
+from sensors import Sensors
 
 MAX_RADIANS = 2 * pi
 
@@ -13,6 +16,26 @@ def mapped_key(key):
         'd': pygame.K_d,
         'space': pygame.K_SPACE
     }.get(key)
+
+
+def convert_sensor_states_to_integer(boolean_states):
+    integer_states = []
+    for state in boolean_states:
+        if state:
+            integer_states.append(1)
+        else:
+            integer_states.append(0)
+    return integer_states
+
+
+def find_index_of_max_value(container):
+    max_item_value = 0
+    max_item_index = 0
+    for index, item in enumerate(container):
+        if item > max_item_value:
+            max_item_value = item
+            max_item_index = index
+    return max_item_index
 
 
 class Car:
@@ -38,9 +61,21 @@ class Car:
         self.max_speed = 0.1
         self.braking = 0.0  # axis [0.0,1.0]
         self.turn = 0.0  # axis [-1.0,1.0]
+        self.sensors = Sensors()
+        self.neural_network = CarNeuralNetwork(1, [5, 10, 6])
+        self.distance_traveled = 0
 
-    def handle_keyboard(self, keyboardEvents):
-        if(keyboardEvents.isPressed(mapped_key('w'))):
+    def handle_neural_network(self):
+        sensor_states = self.sensors.get_states_of_sensors()
+        sensor_states = convert_sensor_states_to_integer(sensor_states)
+        output = self.neural_network.calc(sensor_states)
+        nn_output_index = find_index_of_max_value(output)
+        possible_inputs = ['w', 'a', 's', 'd', 'space', '']
+        handler_input = possible_inputs[nn_output_index]
+        self.handle_input(handler_input)
+
+    def handle_input(self, input):
+        if input == 'w':
             self.braking -= 0.01
             if self.braking < 0.0:
                 self.braking = 0.0
@@ -48,37 +83,53 @@ class Car:
             self.speed += 1.0 * Car.DIVIDER_SPEED
             if self.speed > self.max_speed:
                 self.speed = self.max_speed
-        elif (keyboardEvents.isPressed(mapped_key('s'))):
+        elif input == 's':
             self.braking += 0.01
             if self.braking > 1.0:
                 self.braking = 1.0
-        elif (keyboardEvents.isPressed(mapped_key('space'))):
+        elif input == 'space':
             self.speed = 0.0
             self.braking = 1.0
-        if (keyboardEvents.isPressed(mapped_key('a'))):
+        if input == 'a':
             self.turn -= 0.01
             if self.turn < -1.0:
                 self.turn = -1.0
-
-        elif (keyboardEvents.isPressed(mapped_key('d'))):
+        elif input == 'd':
             self.turn += 0.01
             if self.turn > 1.0:
                 self.turn = 1.0
         else:
             self.turn *= 0.1
 
-    def update(self):
-        if self.braking > 0.0:
-            inital = self.speed
+    def handle_keyboard(self, keyboardEvents):
+        keyboard_input = ''
+        if keyboardEvents.isPressed(mapped_key('w')):
+            keyboard_input = 'w'
+        elif keyboardEvents.isPressed(mapped_key('s')):
+            keyboard_input = 's'
+        elif keyboardEvents.isPressed(mapped_key('space')):
+            keyboard_input = 'space'
+        elif keyboardEvents.isPressed(mapped_key('a')):
+            keyboard_input = 'a'
+        elif keyboardEvents.isPressed(mapped_key('d')):
+            keyboard_input = 'd'
+        else:
+            keyboard_input = ''
+        self.handle_input(keyboard_input)
 
-            if inital > 0.0:
+    # Just like in Unity Engine, we call fixed_update an physics update
+    def fixed_update(self):
+        if self.braking > 0.0:
+            initial = self.speed
+
+            if initial > 0.0:
                 self.speed -= self.braking * Car.DIVIDER_BREAK
                 if self.speed < 0.0:
                     self.speed = 0.0
-            elif inital < 0.0:
-                self.speed += self.braking * Car.DIVIDER_BREAK
-                if self.speed > 0.0:
-                    self.speed = 0.0
+                elif initial < 0.0:
+                    self.speed += self.braking * Car.DIVIDER_BREAK
+                    if self.speed > 0.0:
+                        self.speed = 0.0
 
         if self.turn != 0.0:
             if self.speed + 0.01 > self.max_speed:
@@ -97,15 +148,23 @@ class Car:
         self.rect[0] = self.position_x
         self.rect[1] = self.position_y
 
-    def draw(self, surface, camera):
+        self.distance_traveled += sqrt(nx**2 + ny**2)
 
+    def update(self):
+        self.fixed_update()
+
+        self.sensors.setup_sensors(
+            self.angle, pygame.Vector2(self.position_x, self.position_y))
+
+    def draw(self, surface, camera):
         rotated = pygame.transform.rotate(self.image, self.angle.degree)
         rect = rotated.get_rect()
         # position = pygame.Vector2(self.position_x, self.position_y)
         # self.screen.blit(rotated, position - (rect.width/2.0, rect.height/2.0))
         (x, y, w, h) = camera.apply(self)
-
         self.screen.blit(rotated, pygame.Vector2(x-w/2, y-h/2))
+
+        self.sensors.draw_sensors(surface, camera)
 
         self.rotate_car_points()
 
@@ -158,24 +217,31 @@ class Car:
         return (rx, ry)
 
     def detect_collision(self, grid):
+        self.sensors.check_collision(grid)
 
         for (x, y) in self.car_points.values():
             if y >= self.screen.get_height()-2:
                 self.speed = 0
                 self.position_y -= 2
+                self.distance_traveled -= 2
             if y <= 2:
                 self.speed = 0
                 self.position_y += 2
+                self.distance_traveled -= 2
             if x >= self.screen.get_width()-2:
                 self.speed = 0
                 self.position_x -= 2
+                self.distance_traveled -= 2
             if x <= 2:
                 self.speed = 0
                 self.position_x += 2
-            self.update()
+                self.distance_traveled -= 2
+            self.fixed_update()  # ta linijka kodu, zabrała mi 2 godziny życia - update powinien być callowany raz na pętle główną programu,
+            # a inne zmiany robione inną funkcją; zmieniłem na fixed_update
             # self.draw(None, None)
 
             if grid[x, y] == 1:
+                self.distance_traveled -= 100  # distance penalty for collision
                 return True
 
         return False

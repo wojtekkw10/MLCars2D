@@ -11,8 +11,11 @@ class Camera(object):
         return target.rect.move(self.state.topleft)
 
     def apply_on_rect(self, target):
-
         return target.move(self.state.topleft)
+
+    def apply_on_line(self, line):
+        line = pygame.Vector2(line.x + self.state.x, line.y + self.state.y)
+        return line
 
     def update(self, target):
         # print(self.state.topleft)
