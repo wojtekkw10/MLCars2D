@@ -87,4 +87,5 @@ class GameObjectsController:
         map_editor = MapEditor(self.screen)
         map_editor.draw_editor()
         map_editor.draw_map(keyboard_events)
+        map_editor.handle_keyboard(keyboard_events)
 
