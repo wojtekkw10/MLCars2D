@@ -31,7 +31,7 @@ class ScreenController:
         game_objects_controller.reinitialize_cars(population)
 
         clock = pygame.time.Clock()
-        fps = 200
+        fps = constants.FPS
 
         simulation_length = 600
 
