@@ -30,6 +30,11 @@ class GeneticAlgorithm:
             ind.fitness.values = fit
         self.population = self.toolbox.select(self.offspring, k=len(self.population))
 
+        del(self.population[0])
+        del(self.population[0])
+        self.population.extend(self.toolbox.population(n=2))
+
+
     def select_best(self, k):
         _top = tools.selBest(self.population, k=k)
         return _top
