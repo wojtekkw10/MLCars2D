@@ -95,12 +95,7 @@ class GameObjectsController:
         self.display_track()
 
         if keyboardEvents.isPressed(pygame.K_b):
-            self.is_some_action_going_on = False
-            for button_label in self.menu.buttons:
-                button = self.menu.buttons.get(button_label)
-                button.is_button_pressed = False
-                
-            self.display_menu()
+            self.go_back_to_menu()
 
     def update_simulation(self):
         for car in self.cars:
@@ -119,9 +114,12 @@ class GameObjectsController:
         map_editor.draw_editor()
         map_editor.draw_map(keyboard_events)
         if map_editor.handle_keyboard(keyboard_events):
-            self.is_some_action_going_on = False
-            for button_label in self.menu.buttons:
-                button = self.menu.buttons.get(button_label)
-                button.is_button_pressed = False
+            self.go_back_to_menu()
 
-            self.display_menu()
+    def go_back_to_menu(self):
+        self.is_some_action_going_on = False
+        for button_label in self.menu.buttons:
+            button = self.menu.buttons.get(button_label)
+            button.is_button_pressed = False
+
+        self.display_menu()
