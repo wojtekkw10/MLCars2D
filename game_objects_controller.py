@@ -94,6 +94,14 @@ class GameObjectsController:
         self.update_simulation()
         self.display_track()
 
+        if keyboardEvents.isPressed(pygame.K_b):
+            self.is_some_action_going_on = False
+            for button_label in self.menu.buttons:
+                button = self.menu.buttons.get(button_label)
+                button.is_button_pressed = False
+                
+            self.display_menu()
+
     def update_simulation(self):
         for car in self.cars:
             # car.handle_keyboard(keyboardEvents)
