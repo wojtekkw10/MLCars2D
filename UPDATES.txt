@@ -71,3 +71,24 @@ Co planujemy?
 Co nas blokuje?
  - Nic
 
+22.05.2020
+Co zrobiliśmy?
+ - Rozszerzenie funkcjonalności menu
+ - Rysowanie wykresu historii zmiany średniej pokonanej odległości
+ - Wielowątkowość, zapisywanie populacji do pliku
+ - Poprawienie liczenia kolizji gdy nie rysowana jest mapa
+ - Zmiana sposobu liczenia kolizji
+ - wyświetlanie historii statystyk
+Czego nie udało się zrobić?
+ - Refaktoryzacja kodu
+Co planujemy?
+ - Dokończenie edytora - Mateusz
+ - Dołączenie rysowania statystyk - Patryk
+ - Poprawienie zapisywanie populacji do pliku - Wojtek
+ - Konfiguracja symulacji - Paweł
+ - Zmiana przekazywanych danych do sieci - Wojtek
+ - Poprawienie liczenia sensorów - Kuba
+ - Poprawienie kolizji bez grafiki
+Co nas blokuje?
+ - Nic
+

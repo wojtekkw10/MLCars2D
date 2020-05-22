@@ -42,7 +42,7 @@ class ScreenController:
                 population = self.perform_learning_iteration(distances, population, genetic_algorithm, iteration_number)
                 print(sum(distances) / (len(distances)))  # print average distance
 
-                for _ in range(0):  # number of hidden algorithm iterations
+                for _ in range(2):  # number of hidden algorithm iterations
                     game_objects_controller.reinitialize_cars(population)
                     game_objects_controller.multithreaded_update_simulation(simulation_length)
                     #for _ in range(simulation_length):

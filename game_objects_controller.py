@@ -2,6 +2,7 @@ import threading
 
 import pygame
 
+import map_editor
 from angle import Angle
 from gameObjects.menu import Menu
 from gameObjects.car import Car
@@ -99,11 +100,12 @@ class GameObjectsController:
             self.go_back_to_menu()
 
     def update_simulation(self):
+        self.camera.update(self.cars[0])
         for car in self.cars:
             # car.handle_keyboard(keyboardEvents)
             car.handle_neural_network()
             car.update(self.camera)
-            self.camera.update(car)
+
             car_position_x, car_position_y = int(
                 car.position_x), int(car.position_y)
             car.detect_collision(self.track.grid, self.track.sectors)
@@ -112,7 +114,7 @@ class GameObjectsController:
     def car_updating_thread(self, car, number_of_updates):
         for _ in range(number_of_updates):
             car.handle_neural_network()
-            car.update()
+            car.update(self.camera)
             car.detect_collision(self.track.grid, self.track.sectors)
 
     def multithreaded_update_simulation(self, number_of_updates):

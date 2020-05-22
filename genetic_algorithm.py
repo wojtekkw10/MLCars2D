@@ -47,7 +47,6 @@ if __name__ == '__main__':
     def eval_one_max(individual):
         return (sum(individual),)
 
-
     number_of_generations = 10000
     ga = GeneticAlgorithm(number_of_weights=2, population_size=3, tournament_size=2, mutation_prb=0.05)
 
