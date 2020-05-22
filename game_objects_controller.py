@@ -1,3 +1,5 @@
+import threading
+
 import pygame
 
 from angle import Angle
@@ -103,6 +105,23 @@ class GameObjectsController:
                 car.position_x), int(car.position_y)
 
             car.detect_collision(self.track.grid, self.track.sectors)
+            
+
+    def car_updating_thread(self, car, number_of_updates):
+        for _ in range(number_of_updates):
+            car.handle_neural_network()
+            car.update()
+            car.detect_collision(self.track.grid, self.track.sectors)
+
+
+    def multithreaded_update_simulation(self, number_of_updates):
+        threads = []
+        for car in self.cars:
+            t = threading.Thread(target=self.car_updating_thread, args=(car, number_of_updates))
+            threads.append(t)
+            t.start()
+        for thread in threads:
+            thread.join()
 
     def map_editor_button_action(self, keyboard_events):
         map_editor = MapEditor(self.screen)

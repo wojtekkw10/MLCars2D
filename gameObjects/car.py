@@ -87,6 +87,7 @@ class Car:
         self.sensors = Sensors()
         self.neural_network = CarNeuralNetwork(1, [5, 10, 6])
         self.distance_traveled = 0
+        self.collision_happened = False
 
 
     def handle_neural_network(self):
@@ -172,7 +173,8 @@ class Car:
         self.rect[0] = self.position_x
         self.rect[1] = self.position_y
 
-        self.distance_traveled += sqrt(nx**2 + ny**2)
+        if not self.collision_happened:
+            self.distance_traveled += sqrt(nx**2 + ny**2)
 
     def update(self, camera):
 
@@ -250,7 +252,7 @@ class Car:
                 x_sector = x // constants.X_SECTOR_SIZE
                 y_sector = y // constants.Y_SECTOR_SIZE
                 if (x, y) in sectors[y_sector][x_sector]:
-                    self.distance_traveled -= 100  # distance penalty for collision
+                    self.collision_happened = True
                     return True
 
         return False
