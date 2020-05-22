@@ -103,8 +103,7 @@ class GameObjectsController:
             car_position_x, car_position_y = int(
                 car.position_x), int(car.position_y)
 
-            if car.detect_collision(self.track.grid, self.track.sectors):
-                print("COLLISION")
+            car.detect_collision(self.track.grid, self.track.sectors)
 
     def map_editor_button_action(self, keyboard_events):
         map_editor = MapEditor(self.screen)
