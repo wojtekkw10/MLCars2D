@@ -95,6 +95,9 @@ class GameObjectsController:
         self.update_simulation()
         self.display_track()
 
+        if keyboardEvents.isPressed(pygame.K_b):
+            self.go_back_to_menu()
+
     def update_simulation(self):
         for car in self.cars:
             # car.handle_keyboard(keyboardEvents)
@@ -103,7 +106,6 @@ class GameObjectsController:
             self.camera.update(car)
             car_position_x, car_position_y = int(
                 car.position_x), int(car.position_y)
-
             car.detect_collision(self.track.grid, self.track.sectors)
             
 
@@ -112,7 +114,6 @@ class GameObjectsController:
             car.handle_neural_network()
             car.update()
             car.detect_collision(self.track.grid, self.track.sectors)
-
 
     def multithreaded_update_simulation(self, number_of_updates):
         threads = []
@@ -127,5 +128,17 @@ class GameObjectsController:
         map_editor = MapEditor(self.screen)
         map_editor.draw_editor()
         map_editor.draw_map(keyboard_events)
+
+        if map_editor.handle_keyboard(keyboard_events):
+            self.go_back_to_menu()
+
+    def go_back_to_menu(self):
+        self.is_some_action_going_on = False
+        for button_label in self.menu.buttons:
+            button = self.menu.buttons.get(button_label)
+            button.is_button_pressed = False
+
+        self.display_menu()
+
         map_editor.handle_keyboard(keyboard_events)
 

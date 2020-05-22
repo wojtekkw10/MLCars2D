@@ -1,7 +1,7 @@
 import pygame
 import numpy as np
 import constants
-
+import files_ops
 
 class Track:
 
@@ -20,6 +20,7 @@ class Track:
         self.camera_state = (0, 0)
 
     def initialize_points(self):
+
 
         self.track_line1_points = [(0, 20),
                                    (466, 25), (798, 165), (1085, 176),
