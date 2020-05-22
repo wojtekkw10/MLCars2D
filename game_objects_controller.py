@@ -7,7 +7,6 @@ from gameObjects.track import Track
 from handlers.camera import Camera
 from map_editor import MapEditor
 import pygame
-import sys
 
 
 class GameObjectsController:
@@ -98,8 +97,8 @@ class GameObjectsController:
         for car in self.cars:
             # car.handle_keyboard(keyboardEvents)
             car.handle_neural_network()
-            self.camera.update(car)
             car.update(self.camera)
+            self.camera.update(car)
             car_position_x, car_position_y = int(
                 car.position_x), int(car.position_y)
 

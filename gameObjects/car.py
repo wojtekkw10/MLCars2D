@@ -190,9 +190,8 @@ class Car:
 
     def draw(self, surface, camera):
 
-        (x, y, w, h) = camera.apply(self)
         rotated = pygame.transform.rotate(self.image, self.angle.degree)
-        self.screen.blit(rotated, pygame.Vector2(x-w/2, y-h/2))
+        self.screen.blit(rotated, pygame.Vector2(self.car_center_x-self.car_width/2, self.car_center_y-self.car_height/2))
 
         self.sensors.draw_sensors(surface, camera)
 
