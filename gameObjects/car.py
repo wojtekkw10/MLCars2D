@@ -6,7 +6,6 @@ from neural_network import CarNeuralNetwork
 from sensors import Sensors
 import constants
 
-
 def mapped_key(key):
     return {
         'w': pygame.K_w,
@@ -81,10 +80,7 @@ class Car:
         self.position_y = y
         self.speed = 0.0
         self.angle = Angle(0)  # 0 is E, 90 is N, 180 is W, 270 is S
-        self.car_center_x = int(x + self.car_width/2)
-        self.car_center_y = int(y +self.car_height/2)
         self.car_points = {}
-        self.rotate_car_points()
         self.max_speed = constants.MAX_SPEED
         self.braking = 0.0  # axis [0.0,1.0]
         self.turn = 0.0  # axis [-1.0,1.0]
@@ -178,23 +174,27 @@ class Car:
 
         self.distance_traveled += sqrt(nx**2 + ny**2)
 
-    def update(self):
+    def update(self, camera):
+
         self.fixed_update()
 
-        self.sensors.setup_sensors(
-            self.angle, pygame.Vector2(self.position_x, self.position_y))
-
-    def draw(self, surface, camera):
-
-        rotated = pygame.transform.rotate(self.image, self.angle.degree)
         (x, y, w, h) = camera.apply(self)
-        self.screen.blit(rotated, pygame.Vector2(x-w/2, y-h/2))
-
-        self.sensors.draw_sensors(surface, camera)
-
+        rotated = pygame.transform.rotate(self.image, self.angle.degree)
         rect = rotated.get_rect().move(pygame.Vector2(x - w / 2, y - h / 2))
         self.car_center_x, self.car_center_y = rect.center
         self.rotate_car_points()
+
+        self.sensors.setup_sensors(
+        self.angle, pygame.Vector2(self.position_x, self.position_y))
+
+
+    def draw(self, surface, camera):
+
+        (x, y, w, h) = camera.apply(self)
+        rotated = pygame.transform.rotate(self.image, self.angle.degree)
+        self.screen.blit(rotated, pygame.Vector2(x-w/2, y-h/2))
+
+        self.sensors.draw_sensors(surface, camera)
 
 
     def rotate_car_points(self):
@@ -232,7 +232,7 @@ class Car:
 
     def detect_collision(self, grid, sectors):
 
-        self.fixed_update()
+        # self.fixed_update()
         self.sensors.check_collision(grid)
 
         end_points = [(self.car_points['front_left'], self.car_points['rear_left']),
