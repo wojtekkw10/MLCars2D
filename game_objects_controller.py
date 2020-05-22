@@ -1,3 +1,5 @@
+import threading
+
 import pygame
 
 from angle import Angle
@@ -7,7 +9,6 @@ from gameObjects.track import Track
 from handlers.camera import Camera
 from map_editor import MapEditor
 import pygame
-import sys
 
 
 class GameObjectsController:
@@ -101,18 +102,33 @@ class GameObjectsController:
         for car in self.cars:
             # car.handle_keyboard(keyboardEvents)
             car.handle_neural_network()
-
-            car.update()
+            car.update(self.camera)
+            self.camera.update(car)
             car_position_x, car_position_y = int(
                 car.position_x), int(car.position_y)
-
             car.detect_collision(self.track.grid, self.track.sectors)
-            self.camera.update(car)
+            
+
+    def car_updating_thread(self, car, number_of_updates):
+        for _ in range(number_of_updates):
+            car.handle_neural_network()
+            car.update()
+            car.detect_collision(self.track.grid, self.track.sectors)
+
+    def multithreaded_update_simulation(self, number_of_updates):
+        threads = []
+        for car in self.cars:
+            t = threading.Thread(target=self.car_updating_thread, args=(car, number_of_updates))
+            threads.append(t)
+            t.start()
+        for thread in threads:
+            thread.join()
 
     def map_editor_button_action(self, keyboard_events):
         map_editor = MapEditor(self.screen)
         map_editor.draw_editor()
         map_editor.draw_map(keyboard_events)
+
         if map_editor.handle_keyboard(keyboard_events):
             self.go_back_to_menu()
 
@@ -123,3 +139,6 @@ class GameObjectsController:
             button.is_button_pressed = False
 
         self.display_menu()
+
+        map_editor.handle_keyboard(keyboard_events)
+

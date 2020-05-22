@@ -6,7 +6,6 @@ from neural_network import CarNeuralNetwork
 from sensors import Sensors
 import constants
 
-
 def mapped_key(key):
     return {
         'w': pygame.K_w,
@@ -81,16 +80,14 @@ class Car:
         self.position_y = y
         self.speed = 0.0
         self.angle = Angle(0)  # 0 is E, 90 is N, 180 is W, 270 is S
-        self.car_center_x = int(x + self.car_width/2)
-        self.car_center_y = int(y +self.car_height/2)
         self.car_points = {}
-        self.rotate_car_points()
         self.max_speed = constants.MAX_SPEED
         self.braking = 0.0  # axis [0.0,1.0]
         self.turn = 0.0  # axis [-1.0,1.0]
         self.sensors = Sensors()
         self.neural_network = CarNeuralNetwork(1, [5, 10, 6])
         self.distance_traveled = 0
+        self.collision_happened = False
 
 
     def handle_neural_network(self):
@@ -176,25 +173,29 @@ class Car:
         self.rect[0] = self.position_x
         self.rect[1] = self.position_y
 
-        self.distance_traveled += sqrt(nx**2 + ny**2)
+        if not self.collision_happened:
+            self.distance_traveled += sqrt(nx**2 + ny**2)
 
-    def update(self):
+    def update(self, camera):
+
         self.fixed_update()
 
+        (x, y, w, h) = camera.apply(self)
+        rotated = pygame.transform.rotate(self.image, self.angle.degree)
+        rect = rotated.get_rect().move(pygame.Vector2(x - w / 2, y - h / 2))
+        self.car_center_x, self.car_center_y = rect.center
+        self.rotate_car_points()
+
         self.sensors.setup_sensors(
-            self.angle, pygame.Vector2(self.position_x, self.position_y))
+        self.angle, pygame.Vector2(self.position_x, self.position_y))
+
 
     def draw(self, surface, camera):
 
         rotated = pygame.transform.rotate(self.image, self.angle.degree)
-        (x, y, w, h) = camera.apply(self)
-        self.screen.blit(rotated, pygame.Vector2(x-w/2, y-h/2))
+        self.screen.blit(rotated, pygame.Vector2(self.car_center_x-self.car_width/2, self.car_center_y-self.car_height/2))
 
         self.sensors.draw_sensors(surface, camera)
-
-        rect = rotated.get_rect().move(pygame.Vector2(x - w / 2, y - h / 2))
-        self.car_center_x, self.car_center_y = rect.center
-        self.rotate_car_points()
 
 
     def rotate_car_points(self):
@@ -232,7 +233,7 @@ class Car:
 
     def detect_collision(self, grid, sectors):
 
-        self.fixed_update()
+        # self.fixed_update()
         self.sensors.check_collision(grid)
 
         end_points = [(self.car_points['front_left'], self.car_points['rear_left']),
@@ -251,7 +252,7 @@ class Car:
                 x_sector = x // constants.X_SECTOR_SIZE
                 y_sector = y // constants.Y_SECTOR_SIZE
                 if (x, y) in sectors[y_sector][x_sector]:
-                    self.distance_traveled -= 100  # distance penalty for collision
+                    self.collision_happened = True
                     return True
 
         return False
