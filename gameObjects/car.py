@@ -66,6 +66,13 @@ def get_line_points(point1, point2):
             yield (x, y)
 
 
+def scale_to_bounds(lower, upper, sensor_states):
+    scaled_distances = []
+    for states in sensor_states:
+        scaled_distances.append((3.8 - states[0])/upper)
+    return scaled_distances
+
+
 class Car:
 
     def __init__(self, x, y, screen):
@@ -78,26 +85,31 @@ class Car:
         self.screen = screen
         self.position_x = x
         self.position_y = y
-        self.speed = 0.0
+        self.speed = 5
         self.angle = Angle(0)  # 0 is E, 90 is N, 180 is W, 270 is S
         self.car_points = {}
         self.max_speed = constants.MAX_SPEED
         self.braking = 0.0  # axis [0.0,1.0]
         self.turn = 0.0  # axis [-1.0,1.0]
         self.sensors = Sensors()
-        self.neural_network = CarNeuralNetwork(1, [5, 10, 6])
+        self.neural_network = CarNeuralNetwork(1, [6, 4, 1])
         self.distance_traveled = 0
         self.collision_happened = False
 
 
     def handle_neural_network(self):
         sensor_states = self.sensors.get_states_of_sensors()
-        sensor_states = convert_sensor_states_to_integer(sensor_states)
+        sensor_states = scale_to_bounds(0, 50, sensor_states)
+        sensor_states.append(1.0)
         output = self.neural_network.calc(sensor_states)
         nn_output_index = find_index_of_max_value(output)
-        possible_inputs = ['w', 'a', 's', 'd', 'space', '']
+        possible_inputs = ['a', 'd', '', 'w', 'space', 's']
         handler_input = possible_inputs[nn_output_index]
-        self.handle_input(handler_input)
+        # self.handle_input(handler_input)
+        if output < 0.7:
+            self.turn = 2*output
+        else:
+            self.turn = 2*(-output+0.7)
 
     def handle_input(self, input):
         if input == 'w':

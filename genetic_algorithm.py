@@ -6,6 +6,7 @@ from deap import creator, base, tools, algorithms
 class GeneticAlgorithm:
     # Cross and mutate should be always called before select
     def __init__(self, number_of_weights, population_size, tournament_size, mutation_prb):
+        self.mut_prb = mutation_prb
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", list, fitness=creator.FitnessMax)
         self.toolbox = base.Toolbox()
@@ -16,13 +17,13 @@ class GeneticAlgorithm:
         self.population = self.toolbox.population(n=population_size)
 
         self.toolbox.register("mate", tools.cxTwoPoint)
-        self.toolbox.register("mutate", tools.mutGaussian, mu=2, sigma=0.2, indpb=mutation_prb)
+        self.toolbox.register("mutate", tools.mutGaussian, mu=0.5, sigma=2, indpb=mutation_prb)
         self.toolbox.register("select", tools.selTournament, tournsize=tournament_size)
 
         self.offspring = None
 
     def perform_crossing_and_mutation(self):
-        self.offspring = algorithms.varAnd(self.population, self.toolbox, cxpb=0.5, mutpb=0.1)
+        self.offspring = algorithms.varAnd(self.population, self.toolbox, cxpb=0.5, mutpb=self.mut_prb)
         return self.offspring
 
     def perform_selection(self, fits):
@@ -30,9 +31,10 @@ class GeneticAlgorithm:
             ind.fitness.values = fit
         self.population = self.toolbox.select(self.offspring, k=len(self.population))
 
-        del(self.population[0])
-        del(self.population[0])
-        self.population.extend(self.toolbox.population(n=2))
+        number_of_individuals_to_replace = 2
+        for _ in range(number_of_individuals_to_replace):
+            del(self.population[0])
+        self.population.extend(self.toolbox.population(n=number_of_individuals_to_replace))
 
 
     def select_best(self, k):

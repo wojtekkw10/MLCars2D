@@ -93,8 +93,8 @@ class Sensors:
             self.detected[line] = SensorData()
 
         self.detected['midline'].sensor_size += 100
-        self.detected['rightline1'].sensor_size += 30
-        self.detected['leftline1'].sensor_size += 30
+        self.detected['rightline1'].sensor_size += 70
+        self.detected['leftline1'].sensor_size += 70
 
     def setup_sensors(self, angle, origin):
         self.origin = origin
@@ -127,8 +127,7 @@ class Sensors:
                                                                      origin.y), (line_vector.x, line_vector.y), 2)
 
     def get_states_of_sensors(self):
-        sensor_states = []
+        distances = []
         for line in self.lines:
-            sensor_state = self.detected[line].detected
-            sensor_states.append(sensor_state)
-        return sensor_states
+            distances.append((self.detected[line].distance, self.detected[line].detected))
+        return distances

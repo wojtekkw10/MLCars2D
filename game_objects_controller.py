@@ -100,7 +100,7 @@ class GameObjectsController:
             self.go_back_to_menu()
 
     def update_simulation(self):
-        self.camera.update(self.cars[0])
+        # self.camera.update(self.cars[0])
         for car in self.cars:
             # car.handle_keyboard(keyboardEvents)
             car.handle_neural_network()

@@ -23,7 +23,7 @@ class ScreenController:
 
         keyboardEvents = KeyboardEventHandler()
 
-        genetic_algorithm = GeneticAlgorithm(125, game_objects_controller.number_of_cars, 40, 0.05)
+        genetic_algorithm = GeneticAlgorithm(38, game_objects_controller.number_of_cars, 10, 0.20)
         population = genetic_algorithm.perform_crossing_and_mutation()
         print(len(game_objects_controller.cars[0].neural_network.get_weight_list()))
         game_objects_controller.reinitialize_cars(population)
@@ -42,7 +42,7 @@ class ScreenController:
                 population = self.perform_learning_iteration(distances, population, genetic_algorithm, iteration_number)
                 print(sum(distances) / (len(distances)))  # print average distance
 
-                for _ in range(2):  # number of hidden algorithm iterations
+                for _ in range(0):  # number of hidden algorithm iterations
                     game_objects_controller.reinitialize_cars(population)
                     game_objects_controller.multithreaded_update_simulation(simulation_length)
                     #for _ in range(simulation_length):
