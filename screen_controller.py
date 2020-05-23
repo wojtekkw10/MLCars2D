@@ -39,6 +39,7 @@ class ScreenController:
         while True:
             if game_objects_controller.play_action_frame_count % simulation_length == 0:
                 distances = game_objects_controller.get_car_distances()
+                iteration_number += 1
                 population = self.perform_learning_iteration(distances, population, genetic_algorithm, iteration_number)
                 print(sum(distances) / (len(distances)))  # print average distance
 
@@ -50,6 +51,7 @@ class ScreenController:
                     distances = game_objects_controller.get_car_distances()
                     print(distances)
                     print(sum(distances) / (len(distances)))  # print average distance
+                    iteration_number += 1
                     population = self.perform_learning_iteration(distances, population, genetic_algorithm, iteration_number)
             elif game_objects_controller.play_action_frame_count % simulation_length == 1:
                 game_objects_controller.reinitialize_cars(population)
@@ -68,7 +70,6 @@ class ScreenController:
             clock.tick(fps)
 
     def perform_learning_iteration(self, distances, population, genetic_algorithm, iteration_number):
-        iteration_number += 1
 
         distance_and_weights = zip(distances, population)
 
