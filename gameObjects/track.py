@@ -21,16 +21,24 @@ class Track:
 
     def initialize_points(self):
 
+        mapa = files_ops.load_map()
+        start_positions = mapa[:len(mapa) // 2]
+        end_positions = mapa[len(mapa) // 2:]
 
-        self.track_line1_points = [(0, 20),
-                                   (466, 25), (798, 165), (1085, 176),
-                                   (1108, 428), (894, 548), (560, 555),
-                                   (175, 434), (3, 432)]
+        line1 = []
+        line2 = []
+        line1.append(start_positions[1])
+        for i in range(1, len(end_positions)//2 + 1):
+            line1.append(end_positions[i])
 
-        self.track_line2_points = [(0, 110),
-                                   (457, 126), (739, 248), (965, 256),
-                                   (979, 379), (890, 450), (572, 458),
-                                   (200, 359), (2, 342)]
+        line2.append(start_positions[len(start_positions)//2+1])
+        for i in range(len(end_positions)//2 + 1, len(end_positions)):
+            line2.append(end_positions[i])
+
+
+        self.track_line1_points = line1
+
+        self.track_line2_points = line2
 
         # self.initialize_track_line(self.track_line1_points)
         # self.initialize_track_line(self.track_line2_points)

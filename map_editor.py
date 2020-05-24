@@ -21,7 +21,7 @@ class MapEditor:
 
     def draw_map(self, keyboard_events):
         if len(keyboard_events.start_positions) > 1 and len(keyboard_events.end_positions) > 1:
-            for i in range(1, len(keyboard_events.start_positions)):
+            for i in range(1, len(keyboard_events.end_positions)):
                 pygame.draw.line(self.screen, self.line_color, keyboard_events.start_positions[i],
                                  keyboard_events.end_positions[i], 5)
 

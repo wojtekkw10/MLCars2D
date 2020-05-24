@@ -17,10 +17,10 @@ class KeyboardEventHandler:
         elif event.type == pygame.KEYUP:
             self.keys[event.key] = KeyboardEventHandler.KEY_NOTPRESSED
         elif event.type == pygame.MOUSEBUTTONUP and self.is_drawing_line:
-            self.start_positions.append(pygame.mouse.get_pos())
+            self.end_positions.append(pygame.mouse.get_pos())
             self.is_drawing_line = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            self.end_positions.append(pygame.mouse.get_pos())
+            self.start_positions.append(pygame.mouse.get_pos())
             self.is_drawing_line = True
 
     def isPressed(self, key):
