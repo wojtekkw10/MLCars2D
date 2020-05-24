@@ -142,5 +142,5 @@ class GameObjectsController:
 
         self.display_menu()
 
-        map_editor.handle_keyboard(keyboard_events)
+
 

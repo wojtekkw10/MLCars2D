@@ -42,3 +42,5 @@ def mapped_key(key):
         'l': pygame.K_l,
         'b': pygame.K_b
     }.get(key)
+
+
