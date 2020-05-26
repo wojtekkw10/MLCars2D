@@ -82,8 +82,7 @@ class ScreenController:
         genetic_algorithm.perform_selection(learning_data)
         population = genetic_algorithm.perform_crossing_and_mutation()
 
-        f = open("populations/population"+str(iteration_number), "a")
-        f.write(str(population))
-        f.close()
+        with open("populations/population"+str(iteration_number), "a") as f:
+            f.write(str(population))
 
         return population
