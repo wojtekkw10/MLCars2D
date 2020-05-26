@@ -139,14 +139,14 @@ class GameObjectsController:
         background_color = (186, 193, 204)
         self.screen.fill(background_color)
         # do some action hehe
-        # self.track.choose_menu(False) - loads map from editor instead of default
+        # self.track.initialize_points(False) - loads map from editor instead of default
 
         font = pygame.font.Font('freesansbold.ttf', 16)
         text = font.render("If you want go go back, remember we never gonna give up and press 'b'"
                            , True, (255, 255, 255))
         textRect = text.get_rect()
         self.screen.blit(text, textRect)
-        
+
         if keyboard_events.isPressed(pygame.K_b):
             self.go_back_to_menu()
 
