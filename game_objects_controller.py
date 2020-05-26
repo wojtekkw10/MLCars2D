@@ -90,6 +90,8 @@ class GameObjectsController:
                     self.play_button_action(keyboardEvents)
                 if button_label == "map editor":
                     self.map_editor_button_action(keyboardEvents)
+                if button_label == "options":
+                    self.options_button_action(keyboardEvents)
 
     def play_button_action(self, keyboardEvents):
         self.play_action_frame_count += 1
@@ -109,7 +111,6 @@ class GameObjectsController:
             car_position_x, car_position_y = int(
                 car.position_x), int(car.position_y)
             car.detect_collision(self.track.grid, self.track.sectors)
-            
 
     def car_updating_thread(self, car, number_of_updates):
         for _ in range(number_of_updates):
@@ -134,6 +135,21 @@ class GameObjectsController:
         if map_editor.handle_keyboard(keyboard_events):
             self.go_back_to_menu()
 
+    def options_button_action(self, keyboard_events):
+        background_color = (186, 193, 204)
+        self.screen.fill(background_color)
+        # do some action hehe
+        # self.track.choose_menu(False) - loads map from editor instead of default
+
+        font = pygame.font.Font('freesansbold.ttf', 16)
+        text = font.render("If you want go go back, remember we never gonna give up and press 'b'"
+                           , True, (255, 255, 255))
+        textRect = text.get_rect()
+        self.screen.blit(text, textRect)
+        
+        if keyboard_events.isPressed(pygame.K_b):
+            self.go_back_to_menu()
+
     def go_back_to_menu(self):
         self.is_some_action_going_on = False
         for button_label in self.menu.buttons:
@@ -141,6 +157,3 @@ class GameObjectsController:
             button.is_button_pressed = False
 
         self.display_menu()
-
-
-
