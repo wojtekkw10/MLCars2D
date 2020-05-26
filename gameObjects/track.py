@@ -3,6 +3,7 @@ import numpy as np
 import constants
 import files_ops
 
+
 class Track:
 
     # green = (148, 181, 51)
@@ -19,30 +20,37 @@ class Track:
         self.initialize_points()
         self.camera_state = (0, 0)
 
-    def initialize_points(self):
-
-        mapa = files_ops.load_map()
-        start_positions = mapa[:len(mapa) // 2]
-        end_positions = mapa[len(mapa) // 2:]
-
+    def initialize_points(self, is_default_map=True):
         line1 = []
         line2 = []
-        line1.append(start_positions[1])
-        for i in range(1, len(end_positions)//2 + 1):
-            line1.append(end_positions[i])
 
-        line2.append(start_positions[len(start_positions)//2+1])
-        for i in range(len(end_positions)//2 + 1, len(end_positions)):
-            line2.append(end_positions[i])
+        if is_default_map:
+            line1 = [(0, 20),
+                     (466, 25), (798, 165), (1085, 176),
+                     (1108, 428), (894, 548), (560, 555),
+                     (175, 434), (3, 432)]
+            line2 = [(0, 110),
+                     (457, 126), (739, 248), (965, 256),
+                     (979, 379), (890, 450), (572, 458),
+                     (200, 359), (2, 342)]
+        else:
+            mapa = files_ops.load_map()
+            start_positions = mapa[:len(mapa) // 2]
+            end_positions = mapa[len(mapa) // 2:]
 
+            line1.append(start_positions[1])
+            for i in range(1, len(end_positions) // 2 + 1):
+                line1.append(end_positions[i])
+
+            line2.append(start_positions[len(start_positions) // 2 + 1])
+            for i in range(len(end_positions) // 2 + 1, len(end_positions)):
+                line2.append(end_positions[i])
 
         self.track_line1_points = line1
-
         self.track_line2_points = line2
 
         # self.initialize_track_line(self.track_line1_points)
         # self.initialize_track_line(self.track_line2_points)
-
 
     def initialize_line_sector(self, point1, point2):
 
@@ -77,7 +85,6 @@ class Track:
             x_sector = x // constants.X_SECTOR_SIZE
             y_sector = y // constants.Y_SECTOR_SIZE
             self.sectors[y_sector][x_sector].append((x, y))
-
 
     def draw_track(self, camera):
 
