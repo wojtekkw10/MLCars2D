@@ -27,7 +27,7 @@ def determine_line_end(grid, origin, line):
             y = a * (x - x1) + y1
             x, y = int(x), int(y)
             try:
-                if grid[x, y] or grid[x, y-1] or grid[x, y+1] or grid[x+1, y] or grid[x-1, y]:  # more precise
+                if grid[x, y]:  # more precise
                     return pygame.Vector2(x, y), True
             except IndexError:  # run out of track grid
                 pass
@@ -45,7 +45,7 @@ def determine_line_end(grid, origin, line):
             x = a * (y - y1) + x1
             x, y = int(x), int(y)
             try:
-                if grid[x, y] or grid[x, y-1] or grid[x, y+1] or grid[x+1, y] or grid[x-1, y]:  # more precise
+                if grid[x, y]:  # more precise
                     return pygame.Vector2(x, y), True
             except IndexError:  # run out of track grid
                 pass

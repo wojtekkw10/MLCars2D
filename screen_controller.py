@@ -68,6 +68,7 @@ class ScreenController:
             elif self.game_objects_controller.play_action_frame_count % simulation_length == 1:
                 self.game_objects_controller.reinitialize_cars(population)
 
+            keyboardEvents.reset()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
