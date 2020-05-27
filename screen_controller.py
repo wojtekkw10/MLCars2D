@@ -83,7 +83,6 @@ class ScreenController:
             clock.tick(fps)
 
     def perform_learning_iteration(self, distances, population, genetic_algorithm, iteration_number):
-        iteration_number += 1
 
         distance_and_weights = zip(distances, population)
 
@@ -96,8 +95,7 @@ class ScreenController:
         genetic_algorithm.perform_selection(learning_data)
         population = genetic_algorithm.perform_crossing_and_mutation()
 
-        f = open("populations/population"+str(iteration_number), "a")
-        f.write(str(population))
-        f.close()
+        with open("populations/population"+str(iteration_number), "a") as f:
+            f.write(str(population))
 
         return population
