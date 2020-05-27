@@ -79,10 +79,10 @@ class Car:
         self.screen = screen
         self.position_x = x
         self.position_y = y
-        self.speed = 0.0
         self.angle = Angle(0)  # 0 is E, 90 is N, 180 is W, 270 is S
         self.car_points = {}
         self.max_speed = constants.MAX_SPEED
+        self.speed = self.max_speed / 10  # initial speed
         self.braking = 0.0  # axis [0.0,1.0]
         self.turn = 0.0  # axis [-1.0,1.0]
         self.sensors = Sensors(pygame.Vector2(
@@ -101,7 +101,7 @@ class Car:
         nn_output_index = find_index_of_max_value(output)
         possible_inputs = ['w', 'a', 's', 'd', 'space', '']
         handler_input = possible_inputs[nn_output_index]
-        self.handle_input(handler_input, True)
+        self.handle_input(handler_input, simplify=False)
 
     def handle_input(self, input, simplify):
         if input == 'w':
@@ -139,8 +139,8 @@ class Car:
                 self.turn += 0.01
                 if self.turn > 1.0:
                     self.turn = 1.0
-        else:
-            self.turn *= 0.1
+        # else:
+        #    self.turn *= 0.1
 
     def handle_keyboard(self, keyboardEvents):
         keyboard_input = ''
@@ -214,7 +214,6 @@ class Car:
                 self.angle, pygame.Vector2(self.position_x, self.position_y))
 
     def draw(self, surface, camera):
-
 
         rotated = pygame.transform.rotate(self.image, self.angle.degree)
         self.screen.blit(rotated, pygame.Vector2(

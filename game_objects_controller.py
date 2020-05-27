@@ -11,6 +11,7 @@ from handlers.camera import Camera
 from map_editor import MapEditor
 from params import Params
 import pygame
+from scenes.options_scene import OptionsScene
 
 
 class GameObjectsController:
@@ -20,6 +21,8 @@ class GameObjectsController:
         self.size = self.window_width, self.window_height = window_width, window_height
         self.cars = []
         self.menu = Menu(self.screen, self.window_width, self.window_height)
+        self.options_scene = OptionsScene(
+            self.window_width, self.window_height)
         self.track = Track(self.screen)
         self.is_some_action_going_on = False
         self.play_action_frame_count = 1
@@ -139,20 +142,17 @@ class GameObjectsController:
             self.go_back_to_menu()
 
     def options_button_action(self, keyboard_events):
-        background_color = (186, 193, 204)
-        self.screen.fill(background_color)
-        # do some action hehe
-        # self.track.initialize_points(False) - loads map from editor instead of default
-
-        font = pygame.font.Font('freesansbold.ttf', 16)
-        text = font.render(
-            "If you want go go back, remember we never gonna give up and press 'b'", True, (255, 255, 255))
-        textRect = text.get_rect()
-        self.screen.blit(text, textRect)
+        self.options_scene.update(keyboard_events)
+        self.options_scene.draw(self.screen)
 
         if keyboard_events.isPressed(pygame.K_b):
-            self.number_of_cars = 100
-            self.screen_controller.reinitialize_genetic_algorithm(Params(80))
+            amount = self.options_scene.get_cars_amount()
+            if amount != "":
+                amount = int(amount)
+                self.number_of_cars = amount
+                self.screen_controller.reinitialize_genetic_algorithm(
+                    Params(amount//4))
+
             self.go_back_to_menu()
 
     def go_back_to_menu(self):
