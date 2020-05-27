@@ -92,7 +92,7 @@ class Car:
         self.speed = self.max_speed / 10  # initial speed
         self.braking = 0.0  # axis [0.0,1.0]
         self.turn = 0.0  # axis [-1.0,1.0]
-        self.sensors = Sensors()
+        self.sensors = Sensors(pygame.Vector2(x,y))
         self.neural_network = CarNeuralNetwork(1, [6, 4, 1])
         self.distance_traveled = 0
         self.collision_happened = False
