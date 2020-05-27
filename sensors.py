@@ -83,7 +83,7 @@ class SensorData:
 
 class Sensors:
 
-    def __init__(self):
+    def __init__(self, origin):
         super().__init__()
         self.lines = ['leftline2', 'leftline1',
                       'midline', 'rightline1', 'rightline2']
@@ -91,6 +91,8 @@ class Sensors:
         self.detected = {}
         for line in self.lines:
             self.detected[line] = SensorData()
+
+        self.origin = origin
 
         self.detected['midline'].sensor_size += 100
         self.detected['rightline1'].sensor_size += 30

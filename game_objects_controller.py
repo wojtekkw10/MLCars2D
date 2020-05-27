@@ -9,11 +9,12 @@ from gameObjects.car import Car
 from gameObjects.track import Track
 from handlers.camera import Camera
 from map_editor import MapEditor
+from params import Params
 import pygame
 
 
 class GameObjectsController:
-    def __init__(self, window_width, window_height, screen):
+    def __init__(self, window_width, window_height, screen, screen_controller):
         super().__init__()
         self.screen = screen
         self.size = self.window_width, self.window_height = window_width, window_height
@@ -23,6 +24,7 @@ class GameObjectsController:
         self.is_some_action_going_on = False
         self.play_action_frame_count = 1
         self.number_of_cars = 0
+        self.screen_controller = screen_controller
 
         def simple_camera(camera, target_rect):
             l, t, _, _ = target_rect  # l = left,  t = top
@@ -121,7 +123,8 @@ class GameObjectsController:
     def multithreaded_update_simulation(self, number_of_updates):
         threads = []
         for car in self.cars:
-            t = threading.Thread(target=self.car_updating_thread, args=(car, number_of_updates))
+            t = threading.Thread(
+                target=self.car_updating_thread, args=(car, number_of_updates))
             threads.append(t)
             t.start()
         for thread in threads:
@@ -142,12 +145,14 @@ class GameObjectsController:
         # self.track.initialize_points(False) - loads map from editor instead of default
 
         font = pygame.font.Font('freesansbold.ttf', 16)
-        text = font.render("If you want go go back, remember we never gonna give up and press 'b'"
-                           , True, (255, 255, 255))
+        text = font.render(
+            "If you want go go back, remember we never gonna give up and press 'b'", True, (255, 255, 255))
         textRect = text.get_rect()
         self.screen.blit(text, textRect)
 
         if keyboard_events.isPressed(pygame.K_b):
+            self.number_of_cars = 100
+            self.screen_controller.reinitialize_genetic_algorithm(Params(80))
             self.go_back_to_menu()
 
     def go_back_to_menu(self):
