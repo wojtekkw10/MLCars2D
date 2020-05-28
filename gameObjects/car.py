@@ -222,7 +222,7 @@ class Car:
 
         if self.check_collisions == True:
             self.sensors.setup_sensors(
-                self.angle, pygame.Vector2(self.position_x, self.position_y))
+                self.angle, pygame.Vector2(self.car_center_x, self.car_center_y))
 
     def draw(self, surface, camera):
 
