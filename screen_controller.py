@@ -53,6 +53,8 @@ class ScreenController:
                 # print average distance
                 print(sum(distances) / (len(distances)))
 
+                self.game_objects_controller.update_stat_box()
+
                 for _ in range(2):  # number of hidden algorithm iterations
                     self.game_objects_controller.reinitialize_cars(population)
                     self.game_objects_controller.multithreaded_update_simulation(
