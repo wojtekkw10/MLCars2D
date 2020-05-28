@@ -27,7 +27,7 @@ def determine_line_end(grid, origin, line):
             y = a * (x - x1) + y1
             x, y = int(x), int(y)
             try:
-                if grid[x, y] or grid[x, y-1] or grid[x, y+1] or grid[x+1, y] or grid[x-1, y]:  # more precise
+                if grid[x, y]:  # more precise
                     return pygame.Vector2(x, y), True
             except IndexError:  # run out of track grid
                 pass
@@ -45,7 +45,7 @@ def determine_line_end(grid, origin, line):
             x = a * (y - y1) + x1
             x, y = int(x), int(y)
             try:
-                if grid[x, y] or grid[x, y-1] or grid[x, y+1] or grid[x+1, y] or grid[x-1, y]:  # more precise
+                if grid[x, y]:  # more precise
                     return pygame.Vector2(x, y), True
             except IndexError:  # run out of track grid
                 pass
@@ -83,7 +83,7 @@ class SensorData:
 
 class Sensors:
 
-    def __init__(self):
+    def __init__(self, origin):
         super().__init__()
         self.lines = ['leftline2', 'leftline1',
                       'midline', 'rightline1', 'rightline2']
@@ -92,9 +92,11 @@ class Sensors:
         for line in self.lines:
             self.detected[line] = SensorData()
 
+        self.origin = origin
+
         self.detected['midline'].sensor_size += 100
-        self.detected['rightline1'].sensor_size += 30
-        self.detected['leftline1'].sensor_size += 30
+        self.detected['rightline1'].sensor_size += 70
+        self.detected['leftline1'].sensor_size += 70
 
     def setup_sensors(self, angle, origin):
         self.origin = origin
@@ -127,8 +129,7 @@ class Sensors:
                                                                      origin.y), (line_vector.x, line_vector.y), 2)
 
     def get_states_of_sensors(self):
-        sensor_states = []
+        distances = []
         for line in self.lines:
-            sensor_state = self.detected[line].detected
-            sensor_states.append(sensor_state)
-        return sensor_states
+            distances.append((self.detected[line].distance, self.detected[line].detected))
+        return distances

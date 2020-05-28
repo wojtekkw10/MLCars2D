@@ -33,23 +33,27 @@ class StatBox:
         self.fitness_points = [[self.stat_x, self.stat_y + self.stat_height]]
         for i in range(size):
             fit_x = int(self.stat_x + self.stat_width * (i + 1) / size)
-            fit_y = int(self.stat_y + self.stat_height * (1 - fit_list[i] / self.highest_fitness))
+            fit_y = int(self.stat_y + self.stat_height *
+                        (1 - fit_list[i] / self.highest_fitness))
             self.fitness_points.append([fit_x, fit_y])
 
     def display(self):
-        pg.draw.rect(self.win, self.color[0], (self.x_pos, self.y_pos, self.width, self.height))
-        pg.draw.rect(self.win, self.color[1], (self.stat_x, self.stat_y, self.stat_width, self.stat_height))
+        pg.draw.rect(
+            self.win, self.color[0], (self.x_pos, self.y_pos, self.width, self.height))
+        pg.draw.rect(self.win, self.color[1], (self.stat_x,
+                                               self.stat_y, self.stat_width, self.stat_height))
         pg.draw.rect(self.win, self.color[2],
-                     (self.stat_x - 1, self.stat_y - 1, self.stat_width + 2, self.stat_height + 2), width=3)
+                     (self.stat_x - 1, self.stat_y - 1, self.stat_width + 2, self.stat_height + 2), 3)
 
         for i in range(len(self.fitness_points) - 1):
             pg.draw.line(self.win, self.color[2], (self.fitness_points[i][0], self.fitness_points[i][1]),
-                         (self.fitness_points[i + 1][0], self.fitness_points[i + 1][1]),
-                         width=2)
+                         (self.fitness_points[i + 1][0],
+                          self.fitness_points[i + 1][1]),
+                         2)
 
 
-#example
-
+# example
+'''
 size_ = window_width, window_height = constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT
 pg.init()
 screen = pg.display.set_mode(size_)
@@ -76,3 +80,4 @@ while True:
 
     pg.display.flip()
     clock.tick(60)
+'''

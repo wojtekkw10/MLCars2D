@@ -10,17 +10,26 @@ class KeyboardEventHandler:
         self.start_positions = []
         self.end_positions = []
         self.is_drawing_line = False
+        self.mouse_click = None
+
+    def reset(self):
+        self.unicode_buffor = None
+        self.mouse_click = None
 
     def process(self, event):
+
         if event.type == pygame.KEYDOWN:
             self.keys[event.key] = KeyboardEventHandler.KEY_PRESSED
+            self.unicode_buffor = event.unicode
         elif event.type == pygame.KEYUP:
             self.keys[event.key] = KeyboardEventHandler.KEY_NOTPRESSED
-        elif event.type == pygame.MOUSEBUTTONUP and self.is_drawing_line:
-            self.start_positions.append(pygame.mouse.get_pos())
-            self.is_drawing_line = False
+        elif event.type == pygame.MOUSEBUTTONUP:
+            self.mouse_click = pygame.mouse.get_pos()
+            if self.is_drawing_line:
+                self.end_positions.append(pygame.mouse.get_pos())
+                self.is_drawing_line = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            self.end_positions.append(pygame.mouse.get_pos())
+            self.start_positions.append(pygame.mouse.get_pos())
             self.is_drawing_line = True
 
     def isPressed(self, key):
@@ -31,4 +40,3 @@ class KeyboardEventHandler:
                 return False
         except KeyError:  # No key defined
             return False
-

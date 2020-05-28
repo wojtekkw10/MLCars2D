@@ -9,20 +9,27 @@ from gameObjects.car import Car
 from gameObjects.track import Track
 from handlers.camera import Camera
 from map_editor import MapEditor
+from params import Params
+from stat_display import StatBox
 import pygame
+from scenes.options_scene import OptionsScene
 
 
 class GameObjectsController:
-    def __init__(self, window_width, window_height, screen):
+    def __init__(self, window_width, window_height, screen, screen_controller):
         super().__init__()
         self.screen = screen
         self.size = self.window_width, self.window_height = window_width, window_height
         self.cars = []
         self.menu = Menu(self.screen, self.window_width, self.window_height)
+        self.options_scene = OptionsScene(
+            self.window_width, self.window_height)
+        self.stat_box = StatBox(screen, 890, 10, 300, 150, 0.05)
         self.track = Track(self.screen)
         self.is_some_action_going_on = False
         self.play_action_frame_count = 1
         self.number_of_cars = 0
+        self.screen_controller = screen_controller
 
         def simple_camera(camera, target_rect):
             l, t, _, _ = target_rect  # l = left,  t = top
@@ -49,6 +56,16 @@ class GameObjectsController:
     # for adjusting menu in the future
     def display_menu(self):
         self.menu.draw()
+
+    def display_stat_box(self):
+        self.stat_box.display()
+
+    def update_stat_box(self):
+        best_distance = 0
+        for car in self.cars:
+            if car.distance_traveled > best_distance:
+                best_distance = car.distance_traveled
+        self.stat_box.new_score(best_distance)
 
     def initialize_track_with_random_cars(self):
         self.cars = []
@@ -90,17 +107,20 @@ class GameObjectsController:
                     self.play_button_action(keyboardEvents)
                 if button_label == "map editor":
                     self.map_editor_button_action(keyboardEvents)
+                if button_label == "options":
+                    self.options_button_action(keyboardEvents)
 
     def play_button_action(self, keyboardEvents):
         self.play_action_frame_count += 1
         self.update_simulation()
         self.display_track()
+        self.display_stat_box()
 
         if keyboardEvents.isPressed(pygame.K_b):
             self.go_back_to_menu()
 
     def update_simulation(self):
-        self.camera.update(self.cars[0])
+        # self.camera.update(self.cars[0])
         for car in self.cars:
             # car.handle_keyboard(keyboardEvents)
             car.handle_neural_network()
@@ -109,7 +129,6 @@ class GameObjectsController:
             car_position_x, car_position_y = int(
                 car.position_x), int(car.position_y)
             car.detect_collision(self.track.grid, self.track.sectors)
-            
 
     def car_updating_thread(self, car, number_of_updates):
         for _ in range(number_of_updates):
@@ -120,7 +139,8 @@ class GameObjectsController:
     def multithreaded_update_simulation(self, number_of_updates):
         threads = []
         for car in self.cars:
-            t = threading.Thread(target=self.car_updating_thread, args=(car, number_of_updates))
+            t = threading.Thread(
+                target=self.car_updating_thread, args=(car, number_of_updates))
             threads.append(t)
             t.start()
         for thread in threads:
@@ -134,6 +154,22 @@ class GameObjectsController:
         if map_editor.handle_keyboard(keyboard_events):
             self.go_back_to_menu()
 
+    def options_button_action(self, keyboard_events):
+        self.options_scene.update(keyboard_events)
+        self.options_scene.draw(self.screen)
+
+        if keyboard_events.isPressed(pygame.K_b):
+            amount = self.options_scene.get_cars_amount()
+            if amount != "":
+                amount = int(amount)
+
+                self.stat_box.clear_score()
+                self.number_of_cars = amount
+                self.screen_controller.reinitialize_genetic_algorithm(
+                    Params(amount//4))
+
+            self.go_back_to_menu()
+
     def go_back_to_menu(self):
         self.is_some_action_going_on = False
         for button_label in self.menu.buttons:
@@ -141,6 +177,3 @@ class GameObjectsController:
             button.is_button_pressed = False
 
         self.display_menu()
-
-        map_editor.handle_keyboard(keyboard_events)
-
