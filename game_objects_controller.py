@@ -170,6 +170,9 @@ class GameObjectsController:
 
             self.go_back_to_menu()
 
+        if keyboard_events.isPressed(pygame.K_v):
+            self.track.initialize_points(False)
+
     def go_back_to_menu(self):
         self.is_some_action_going_on = False
         for button_label in self.menu.buttons:
