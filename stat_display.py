@@ -36,6 +36,9 @@ class StatBox:
             fit_y = int(self.stat_y + self.stat_height * (1 - fit_list[i] / self.highest_fitness))
             self.fitness_points.append([fit_x, fit_y])
 
+    def clear_score(self):
+        self.fitness_points = []
+
     def display(self):
         pg.draw.rect(self.win, self.color[0], (self.x_pos, self.y_pos, self.width, self.height))
         pg.draw.rect(self.win, self.color[1], (self.stat_x, self.stat_y, self.stat_width, self.stat_height))
@@ -49,7 +52,7 @@ class StatBox:
 
 
 #example
-
+"""
 size_ = window_width, window_height = constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT
 pg.init()
 screen = pg.display.set_mode(size_)
@@ -76,3 +79,4 @@ while True:
 
     pg.display.flip()
     clock.tick(60)
+"""

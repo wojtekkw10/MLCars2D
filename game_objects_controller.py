@@ -10,6 +10,7 @@ from gameObjects.track import Track
 from handlers.camera import Camera
 from map_editor import MapEditor
 from params import Params
+from stat_display import StatBox
 import pygame
 from scenes.options_scene import OptionsScene
 
@@ -23,6 +24,7 @@ class GameObjectsController:
         self.menu = Menu(self.screen, self.window_width, self.window_height)
         self.options_scene = OptionsScene(
             self.window_width, self.window_height)
+        self.stat_box = StatBox(screen, 890, 10, 300, 150, 0.05)
         self.track = Track(self.screen)
         self.is_some_action_going_on = False
         self.play_action_frame_count = 1
@@ -54,6 +56,16 @@ class GameObjectsController:
     # for adjusting menu in the future
     def display_menu(self):
         self.menu.draw()
+
+    def display_stat_box(self):
+        self.stat_box.display()
+
+    def update_stat_box(self):
+        best_distance = 0
+        for car in self.cars:
+            if car.distance_traveled > best_distance:
+                best_distance = car.distance_traveled
+        self.stat_box.new_score(best_distance)
 
     def initialize_track_with_random_cars(self):
         self.cars = []
@@ -102,6 +114,7 @@ class GameObjectsController:
         self.play_action_frame_count += 1
         self.update_simulation()
         self.display_track()
+        self.display_stat_box()
 
         if keyboardEvents.isPressed(pygame.K_b):
             self.go_back_to_menu()
@@ -149,6 +162,8 @@ class GameObjectsController:
             amount = self.options_scene.get_cars_amount()
             if amount != "":
                 amount = int(amount)
+
+                self.stat_box.clear_score()
                 self.number_of_cars = amount
                 self.screen_controller.reinitialize_genetic_algorithm(
                     Params(amount//4))
