@@ -12,8 +12,6 @@ class Menu:
             self.background = pygame.transform.scale(self.background, (self.window_width, self.window_height))
             self.title = pygame.image.load("resources/images/title.png")
             self.buttons = {}
-            # pygame.mixer.music.load('resources/sounds/opening.mp3')
-            # pygame.mixer.music.play(-1)
         else:
             self.screen = screen
             self.window_width = window_width

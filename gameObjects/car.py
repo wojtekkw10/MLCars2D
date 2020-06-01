@@ -17,26 +17,6 @@ def mapped_key(key):
     }.get(key)
 
 
-def convert_sensor_states_to_integer(boolean_states):
-    integer_states = []
-    for state in boolean_states:
-        if state:
-            integer_states.append(1)
-        else:
-            integer_states.append(0)
-    return integer_states
-
-
-def find_index_of_max_value(container):
-    max_item_value = 0
-    max_item_index = 0
-    for index, item in enumerate(container):
-        if item > max_item_value:
-            max_item_value = item
-            max_item_index = index
-    return max_item_index
-
-
 def get_line_points(point1, point2):
 
     (x1, y1), (x2, y2) = point1, point2
@@ -69,8 +49,9 @@ def get_line_points(point1, point2):
 
 def scale_to_bounds(lower, upper, sensor_states):
     scaled_distances = []
-    for states in sensor_states:
-        scaled_distances.append((3.8 - states[0])/upper)
+    for state in sensor_states:
+        distance = state[0]
+        scaled_distances.append((distance+lower)/upper)
     return scaled_distances
 
 
@@ -88,112 +69,40 @@ class Car:
         self.position_y = y
         self.angle = Angle(0)  # 0 is E, 90 is N, 180 is W, 270 is S
         self.car_points = {}
-        self.max_speed = constants.MAX_SPEED
-        self.speed = self.max_speed / 10  # initial speed
-        self.braking = 0.0  # axis [0.0,1.0]
+        self.speed = constants.CAR_SPEED
         self.turn = 0.0  # axis [-1.0,1.0]
-        self.sensors = Sensors(pygame.Vector2(x,y))
+        self.sensors = Sensors(pygame.Vector2(x, y))
         self.neural_network = CarNeuralNetwork(1, [6, 4, 1])
         self.distance_traveled = 0
         self.collision_happened = False
 
         self.distance_counter = 0
-        self.check_collisions = True
+        self.should_check_collisions = True
 
     def handle_neural_network(self):
-        sensor_states = self.sensors.get_states_of_sensors()
-        sensor_states = scale_to_bounds(0, 50, sensor_states)
-        sensor_states.append(1.0)
-        output = self.neural_network.calc(sensor_states)
-        nn_output_index = find_index_of_max_value(output)
-        possible_inputs = ['a', 'd', '', 'w', 'space', 's']
-        handler_input = possible_inputs[nn_output_index]
-        # self.handle_input(handler_input)
-        if output < 0.7:
-            self.turn = 2*output
+        nn_input = self.get_nn_input_from_sensors()
+        output = self.neural_network.calc(nn_input)
+        self.update_turn_based_on_nn(output)
+
+    def get_nn_input_from_sensors(self):
+        sensor_distances = self.sensors.get_states_of_sensors()
+        sensor_distances = scale_to_bounds(0, 100, sensor_distances)
+        sensor_distances.append(1.0)
+        sensor_distances = [3.8 - value for value in sensor_distances]
+        return sensor_distances
+
+    def update_turn_based_on_nn(self, nn_output):
+        threshold = 0.7
+        if nn_output < threshold:
+            self.turn = 2*nn_output
         else:
-            self.turn = 2*(-output+0.7)
+            self.turn = 2*(-nn_output+threshold)
 
-    def handle_input(self, input, simplify):
-        if input == 'w':
-            if simplify:
-                self.braking = 0
-            else:
-                self.braking -= 0.01
-                if self.braking < 0.0:
-                    self.braking = 0.0
-
-            self.speed += 1.0 * constants.DIVIDER_SPEED
-            if self.speed > self.max_speed:
-                self.speed = self.max_speed
-        elif input == 's':
-            if simplify:
-                self.braking = 1.0
-            else:
-                self.braking += 0.01
-                if self.braking > 1.0:
-                    self.braking = 1.0
-        elif input == 'space':
-            self.speed = 0.0
-            self.braking = 1.0
-        if input == 'a':
-            if simplify:
-                self.turn = -1.0
-            else:
-                self.turn -= 0.01
-                if self.turn < -1.0:
-                    self.turn = -1.0
-        elif input == 'd':
-            if simplify:
-                self.turn = 1.0
-            else:
-                self.turn += 0.01
-                if self.turn > 1.0:
-                    self.turn = 1.0
-        # else:
-        #    self.turn *= 0.1
-
-    def handle_keyboard(self, keyboardEvents):
-        keyboard_input = ''
-        if keyboardEvents.isPressed(mapped_key('w')):
-            keyboard_input = 'w'
-        elif keyboardEvents.isPressed(mapped_key('s')):
-            keyboard_input = 's'
-        elif keyboardEvents.isPressed(mapped_key('space')):
-            keyboard_input = 'space'
-        elif keyboardEvents.isPressed(mapped_key('a')):
-            keyboard_input = 'a'
-        elif keyboardEvents.isPressed(mapped_key('d')):
-            keyboard_input = 'd'
-        else:
-            keyboard_input = ''
-        self.handle_input(keyboard_input, False)
-
-    # Just like in Unity Engine, we call fixed_update an physics update
     def fixed_update(self):
         if self.collision_happened:
             return
 
-        if self.braking > 0.0:
-            initial = self.speed
-
-            if initial > 0.0:
-                self.speed -= self.braking * constants.DIVIDER_BREAK
-                if self.speed < 0.0:
-                    self.speed = 0.0
-            elif initial < 0.0:
-                self.speed += self.braking * constants.DIVIDER_BREAK
-                if self.speed > 0.0:
-                    self.speed = 0.0
-
-        if self.turn != 0.0:
-            if self.speed + 1 > self.max_speed:
-                speed_var = 0.8
-            else:
-                speed_var = (self.speed + 0.001) / self.max_speed
-
-            self.angle.degree -= 1.0 * constants.DIVIDER_ANGLE * \
-                (1.0 - self.braking) * self.turn * speed_var
+        self.angle.degree -= constants.DIVIDER_ANGLE * self.turn
 
         nx = cos(self.angle.radians) * self. speed
         ny = sin(self.angle.radians) * self.speed
@@ -209,7 +118,7 @@ class Car:
             self.distance_counter += dst
             if self.distance_counter > constants.DISTANCE_TO_TRIGGER_CHECKS:
                 self.distance_counter = 0
-                self.check_collisions = True
+                self.should_check_collisions = True
 
     def update(self, camera):
         self.fixed_update()
@@ -220,20 +129,19 @@ class Car:
         self.car_center_x, self.car_center_y = rect.center
         self.rotate_car_points()
 
-        if self.check_collisions == True:
+        if self.should_check_collisions:
             self.sensors.setup_sensors(
                 self.angle, pygame.Vector2(self.car_center_x, self.car_center_y))
 
     def draw(self, surface, camera):
-
         rotated = pygame.transform.rotate(self.image, self.angle.degree)
-        self.screen.blit(rotated, pygame.Vector2(
-            self.car_center_x-self.car_width/2, self.car_center_y-self.car_height/2))
+        image_dest = pygame.Vector2(self.car_center_x-self.car_width/2,
+                                     self.car_center_y-self.car_height/2)
+        self.screen.blit(rotated, image_dest)
 
         self.sensors.draw_sensors(surface, camera)
 
     def rotate_car_points(self):
-
         rotation_angle = constants.MAX_RADIANS - self.angle.radians
 
         (flx, fly) = self.car_center_x + self.car_width / \
@@ -257,21 +165,18 @@ class Car:
             rrx, rry, rotation_angle)
 
     def get_rotated_point(self, x, y, angle):
-
         rx = int(self.car_center_x + (x - self.car_center_x) *
                  cos(angle) - (y - self.car_center_y) * sin(angle))
         ry = int(self.car_center_y + (x - self.car_center_x) *
                  sin(angle) + (y - self.car_center_y) * cos(angle))
-        return (rx, ry)
+        return rx, ry
 
     def detect_collision(self, grid, sectors):
-
-        # self.fixed_update()
-        if not self.collision_happened and self.check_collisions:
+        if not self.collision_happened and self.should_check_collisions:
             self.sensors.check_collision(grid)
 
-        if self.check_collisions:
-            self.check_collisions = False
+        if self.should_check_collisions:
+            self.should_check_collisions = False
 
             end_points = [(self.car_points['front_left'], self.car_points['rear_left']),
                           (self.car_points['front_left'],
@@ -281,10 +186,8 @@ class Car:
                           (self.car_points['rear_left'], self.car_points['rear_right'])]
 
             for end_point in end_points:
-
                 for point in get_line_points(end_point[0], end_point[1]):
-
-                    if self.check_boundries(point):
+                    if self.is_within_bounds(point):
                         return True
 
                     (x, y) = point
@@ -296,28 +199,24 @@ class Car:
 
         return False
 
-    def check_boundries(self, point):
-
+    def is_within_bounds(self, point):
+        is_within_bounds = False
         (x, y) = point
         if y >= self.screen.get_height() - 2:
-            self.speed = 0
             self.position_y -= 2
-            self.distance_traveled -= 2
-            return True
+            is_within_bounds = True
         if y <= 2:
-            self.speed = 0
             self.position_y += 2
-            self.distance_traveled -= 2
-            return True
+            is_within_bounds = True
         if x >= self.screen.get_width() - 2:
-            self.speed = 0
             self.position_x -= 2
-            self.distance_traveled -= 2
-            return True
+            is_within_bounds = True
         if x <= 2:
-            self.speed = 0
             self.position_x += 2
-            self.distance_traveled -= 2
-            return True
+            is_within_bounds = True
 
-        return False
+        if is_within_bounds:
+            self.speed = 0
+            self.distance_traveled -= 2
+
+        return is_within_bounds

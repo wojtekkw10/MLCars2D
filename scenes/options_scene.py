@@ -22,7 +22,7 @@ class OptionsScene:
         self.text_input.update(keyboard_events)
 
     def get_cars_amount(self):
-        return self.text_input.text_buffor
+        return self.text_input.text_buffer
 
     def draw(self, screen):
         background_color = (186, 193, 204)

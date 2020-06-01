@@ -2,7 +2,7 @@ import pygame
 from math import cos, sin, sqrt
 from angle import Angle
 
-SENSOR_WIDTH_INITAL = 90
+SENSOR_WIDTH_INITIAL = 90
 SENSORS_COLOR_INACTIVE = pygame.Color(50, 120, 255, a=100)
 SENSORS_COLOR_ACTIVE = pygame.Color(255, 90, 70, a=100)
 
@@ -12,7 +12,6 @@ def calculate_vector(origin, radians, sensor_size):
 
 
 def determine_line_end(grid, origin, line):
-
     if abs(origin.x - line.x) > abs(origin.y-line.y):
         if origin.x < line.x:
             (x1, y1) = origin
@@ -54,7 +53,7 @@ def determine_line_end(grid, origin, line):
 
 
 class SensorData:
-    def __init__(self, vector=(pygame.Vector2(0, 0)), detected=False, sensor_size=SENSOR_WIDTH_INITAL):
+    def __init__(self, vector=(pygame.Vector2(0, 0)), detected=False, sensor_size=SENSOR_WIDTH_INITIAL):
         super().__init__()
         self.update_vector(vector)
         self.detected = detected
@@ -73,7 +72,7 @@ class SensorData:
 
     @property
     def detection(self):
-        return (self.detected, self.distance)
+        return self.detected, self.distance
 
     @property
     def vector(self):
@@ -121,12 +120,12 @@ class Sensors:
             line_vector = self.detected[line].vector
             line_vector = camera.apply_on_line(line_vector)
 
+            start_pos = (origin.x, origin.y)
+            end_pos = (line_vector.x, line_vector.y)
             if self.detected[line].detected:
-                pygame.draw.aaline(surface, SENSORS_COLOR_ACTIVE, (origin.x,
-                                                                   origin.y), (line_vector.x, line_vector.y), 2)
+                pygame.draw.aaline(surface, SENSORS_COLOR_ACTIVE, start_pos, end_pos, 2)
             else:
-                pygame.draw.aaline(surface, SENSORS_COLOR_INACTIVE, (origin.x,
-                                                                     origin.y), (line_vector.x, line_vector.y), 2)
+                pygame.draw.aaline(surface, SENSORS_COLOR_INACTIVE, start_pos, end_pos, 2)
 
     def get_states_of_sensors(self):
         distances = []

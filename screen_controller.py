@@ -30,6 +30,7 @@ class ScreenController:
 
         keyboardEvents = KeyboardEventHandler()
 
+        iteration_number = 0
         self.genetic_algorithm = GeneticAlgorithm(
             38, self.game_objects_controller.number_of_cars, 40, 0.05)
         population = self.genetic_algorithm.perform_crossing_and_mutation()
@@ -41,32 +42,16 @@ class ScreenController:
         fps = constants.FPS
 
         simulation_length = 400
-        iteration_number = 0
 
-        # I should use timers but I don't know how they work in PyGame
-        # Everything is based on this loop anyway so I might as well use it - Wojtek
         while True:
             if self.game_objects_controller.play_action_frame_count % simulation_length == 0:
                 distances = self.game_objects_controller.get_car_distances()
                 population = self.perform_learning_iteration(
                     distances, population, self.genetic_algorithm, iteration_number)
-                # print average distance
+
                 print(sum(distances) / (len(distances)))
 
                 self.game_objects_controller.update_stat_box()
-                for _ in range(0):  # number of hidden algorithm iterations
-                    self.game_objects_controller.reinitialize_cars(population)
-                    self.game_objects_controller.multithreaded_update_simulation(
-                        simulation_length)
-                    # for _ in range(simulation_length):
-                    #    game_objects_controller.update_simulation()
-                    distances = self.game_objects_controller.get_car_distances()
-                    print(distances)
-                    # print average distance
-                    print(sum(distances) / (len(distances)))
-                    population = self.perform_learning_iteration(
-                        distances, population, self.genetic_algorithm, iteration_number)
-            elif self.game_objects_controller.play_action_frame_count % simulation_length == 1:
                 self.game_objects_controller.reinitialize_cars(population)
 
             keyboardEvents.reset()
@@ -75,7 +60,7 @@ class ScreenController:
                     sys.exit()
                 if event.type == pygame.MOUSEBUTTONUP:
                     pass
-                keyboardEvents.process(event)
+                keyboardEvents.process_events(event)
                 self.game_objects_controller.check_pressed_buttons(event)
 
             self.game_objects_controller.perform_action(keyboardEvents)
@@ -84,7 +69,6 @@ class ScreenController:
             clock.tick(fps)
 
     def perform_learning_iteration(self, distances, population, genetic_algorithm, iteration_number):
-
         distance_and_weights = zip(distances, population)
 
         def distance_mapper(x):

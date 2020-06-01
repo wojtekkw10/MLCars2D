@@ -26,13 +26,13 @@ class MapEditor:
                                  keyboard_events.end_positions[i], 5)
 
     def handle_keyboard(self, keyboardEvents):
-        if keyboardEvents.isPressed(mapped_key('s')):
+        if keyboardEvents.is_pressed(mapped_key('s')):
             files_ops.save_map(keyboardEvents.start_positions, keyboardEvents.end_positions)
-        if keyboardEvents.isPressed(mapped_key('l')):
+        if keyboardEvents.is_pressed(mapped_key('l')):
             list = files_ops.load_map()
             keyboardEvents.start_positions = list[:len(list) // 2]
             keyboardEvents.end_positions = list[len(list) // 2:]
-        if keyboardEvents.isPressed(mapped_key('b')):
+        if keyboardEvents.is_pressed(mapped_key('b')):
             return True
 
 
