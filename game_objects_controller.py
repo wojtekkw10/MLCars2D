@@ -89,8 +89,10 @@ class GameObjectsController:
         background_color = (186, 193, 204)
         self.screen.fill(background_color)
         self.track.draw_track(self.camera)
+        other_cars = []
         for car in self.cars:
-            car.draw(self.screen, self.camera)
+            if car.draw(self.screen, self.camera, other_cars):
+                other_cars.append(car)
 
     def check_pressed_buttons(self, event):
         if not self.is_some_action_going_on:

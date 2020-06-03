@@ -13,8 +13,7 @@ class MapEditor:
             self.screen.fill((56, 59, 56))
             font = pygame.font.Font('freesansbold.ttf', 16)
             text = font.render("If you want to save your map, press 's'. If you want load saved map, press 'l'. "
-                               "If you want go go back, remember we never gonna give up and press 'b"
-                               , True, (255, 255, 255))
+                               "If you want go go back, remember we never gonna give up and press 'b", True, (255, 255, 255))
             textRect = text.get_rect()
             self.screen.blit(text, textRect)
             self.clean = False
@@ -27,7 +26,8 @@ class MapEditor:
 
     def handle_keyboard(self, keyboardEvents):
         if keyboardEvents.is_pressed(mapped_key('s')):
-            files_ops.save_map(keyboardEvents.start_positions, keyboardEvents.end_positions)
+            files_ops.save_map(keyboardEvents.start_positions,
+                               keyboardEvents.end_positions)
         if keyboardEvents.is_pressed(mapped_key('l')):
             list = files_ops.load_map()
             keyboardEvents.start_positions = list[:len(list) // 2]
@@ -42,5 +42,4 @@ def mapped_key(key):
         'l': pygame.K_l,
         'b': pygame.K_b
     }.get(key)
-
 

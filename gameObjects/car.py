@@ -99,12 +99,9 @@ class Car:
             self.turn = 2*(-nn_output+threshold)
 
     def fixed_update(self):
-        if self.collision_happened:
-            return
-
         self.angle.degree -= constants.DIVIDER_ANGLE * self.turn
 
-        nx = cos(self.angle.radians) * self. speed
+        nx = cos(self.angle.radians) * self.speed
         ny = sin(self.angle.radians) * self.speed
 
         self.position_x += nx
@@ -112,15 +109,17 @@ class Car:
         self.rect[0] = self.position_x
         self.rect[1] = self.position_y
 
-        if not self.collision_happened:
-            dst = sqrt(nx**2 + ny**2)
-            self.distance_traveled += dst
-            self.distance_counter += dst
-            if self.distance_counter > constants.DISTANCE_TO_TRIGGER_CHECKS:
-                self.distance_counter = 0
-                self.should_check_collisions = True
+        dst = sqrt(nx**2 + ny**2)
+        self.distance_traveled += dst
+        self.distance_counter += dst
+        if self.distance_counter > constants.DISTANCE_TO_TRIGGER_CHECKS:
+            self.distance_counter = 0
+            self.should_check_collisions = True
 
     def update(self, camera):
+        if self.collision_happened:
+            return
+
         self.fixed_update()
 
         (x, y, w, h) = camera.apply(self)
@@ -133,36 +132,47 @@ class Car:
             self.sensors.setup_sensors(
                 self.angle, pygame.Vector2(self.car_center_x, self.car_center_y))
 
+    def draw(self, surface, camera, other_cars):
+        if len(other_cars) < 15:
+            if self.check_if_drawn(other_cars):
+                return False
 
-    def draw(self, surface, camera):
         rotated = pygame.transform.rotate(self.image, self.angle.degree)
         image_dest = pygame.Vector2(self.position_x - self.car_width / 2,
                                     self.position_y - self.car_height / 2)
         self.screen.blit(rotated, image_dest)
 
         self.sensors.draw_sensors(surface, camera)
+        return True
 
+    def check_if_drawn(self, cars):
+        for car in cars:
+            if floor(car.position_x) == floor(self.position_x) and floor(car.position_y) == floor(self.position_y):
+                return True
+
+        return False
 
     def rotate_car_points(self):
+
         rotation_angle = constants.MAX_RADIANS - self.angle.radians
 
         (flx, fly) = self.car_center_x + self.car_width / \
-                     2.0, self.car_center_y - self.car_height / 2.0
+            2.0, self.car_center_y - self.car_height / 2.0
         self.car_points['front_left'] = self.get_rotated_point(
             flx, fly, rotation_angle)
 
         (frx, fry) = self.car_center_x + self.car_width / \
-                     2.0, self.car_center_y + self.car_height / 2.0
+            2.0, self.car_center_y + self.car_height / 2.0
         self.car_points['front_right'] = self.get_rotated_point(
             frx, fry, rotation_angle)
 
         (rlx, rly) = self.car_center_x - self.car_width / \
-                     2.0, self.car_center_y - self.car_height / 2.0
+            2.0, self.car_center_y - self.car_height / 2.0
         self.car_points['rear_left'] = self.get_rotated_point(
             rlx, rly, rotation_angle)
 
         (rrx, rry) = self.car_center_x - self.car_width / \
-                     2.0, self.car_center_y + self.car_height / 2.0
+            2.0, self.car_center_y + self.car_height / 2.0
         self.car_points['rear_right'] = self.get_rotated_point(
             rrx, rry, rotation_angle)
 
@@ -175,7 +185,7 @@ class Car:
 
     def detect_collision(self, grid, sectors):
         if not self.collision_happened and self.should_check_collisions:
-            self.sensors.check_collision(grid)
+            self.sensors.check_collision(grid, sectors)
 
         if self.should_check_collisions:
             self.should_check_collisions = False
