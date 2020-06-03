@@ -1,7 +1,6 @@
 import threading
 
 import constants
-import files_ops
 from gameObjects.menu import Menu
 from gameObjects.car import Car
 from gameObjects.track import Track
@@ -171,12 +170,14 @@ class GameObjectsController:
     # -----------------------------buttons actions------------------------------------------
     def map_editor_button_action(self, keyboard_events):
         self.map_editor_scene.draw_editor()
+        keyboard_events.drawing_line = True
         self.map_editor_scene.draw_map(keyboard_events)
         self.map_editor_scene.handle_keyboard(keyboard_events)
 
     def editor_back_button_action(self, keyboardEvents):
         keyboardEvents.line1, keyboardEvents.line2 = [], []
         self.map_editor_scene.clean = True
+        keyboardEvents.drawing_line = False
         self.go_back_to_menu()
 
     def editor_erase_button_action(self, keyboardEvents):

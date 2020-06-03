@@ -10,6 +10,7 @@ class KeyboardEventHandler:
         self.line1 = []
         self.line2 = []
         self.is_first_line = True
+        self.drawing_line = False
         self.mouse_click = None
 
     def reset(self):
@@ -24,9 +25,9 @@ class KeyboardEventHandler:
             self.keys[event.key] = KeyboardEventHandler.KEY_NOTPRESSED
         elif event.type == pygame.MOUSEBUTTONDOWN:
             self.mouse_click = pygame.mouse.get_pos()
-            if event.button == constants.LEFT_MOUSE_BUTTON:
+            if event.button == constants.LEFT_MOUSE_BUTTON and self.drawing_line:
                 self.line1.append(pygame.mouse.get_pos())
-            elif event.button == constants.RIGHT_MOUSE_BUTTON:
+            elif event.button == constants.RIGHT_MOUSE_BUTTON and self.drawing_line:
                 self.line2.append(pygame.mouse.get_pos())
 
     def isPressed(self, key):
