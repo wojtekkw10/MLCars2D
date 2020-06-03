@@ -4,9 +4,6 @@ import constants
 import files_ops
 from gameObjects.button import Button
 
-HALF = (1000000, 1000000)
-
-
 class Track:
 
     # green = (148, 181, 51)
@@ -113,7 +110,7 @@ class Track:
         self.back_button.draw(self.screen)
 
 def prepare_lines(mapa):
-    half = mapa.index(HALF)
+    half = mapa.index(constants.HALF)
     line1 = mapa[:half]
     line2 = mapa[half + 1:]
 

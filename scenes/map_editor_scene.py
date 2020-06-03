@@ -18,6 +18,8 @@ class MapEditor:
             self.screen.fill((56, 59, 56))
             self.draw_buttons(self.screen)
             self.draw_instructions()
+            image = pygame.image.load('resources/images/car.png')
+            self.screen.blit(image, constants.CAR_POSITION)
             self.clean = False
 
     def draw_map(self, keyboard_events):
@@ -84,6 +86,7 @@ class MapEditor:
         self.screen.blit(text2, textRect2)
         self.screen.blit(text3, textRect3)
         self.screen.blit(text4, textRect4)
+
 
 def mapped_key(key):
     return {
