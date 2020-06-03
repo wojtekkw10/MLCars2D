@@ -9,7 +9,7 @@ class KeyboardEventHandler:
         self.keys = {}
         self.line1 = []
         self.line2 = []
-        self.is_drawing_line = True
+        self.is_first_line = True
         self.mouse_click = None
 
     def reset(self):

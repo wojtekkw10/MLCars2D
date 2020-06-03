@@ -1,30 +1,27 @@
 import pygame
 import files_ops
-from gameObjects.menu import Menu
-import constants
+from gameObjects.button import Button
+
 
 class MapEditor:
     def __init__(self, screen):
         self.screen = screen
         self.line1_color = (148, 181, 51)
         self.line2_color = (55, 16, 21)
+        self.buttons = {}
         self.clean = True
+        self.prepare_buttons()
 
     def draw_editor(self):
         if self.clean:
             self.screen.fill((56, 59, 56))
-            font = pygame.font.Font('freesansbold.ttf', 16)
-            text = font.render("If you want to save your map, press 's'. If you want load saved map, press 'l'. "
-                               "If you want go go back, remember we never gonna give up and press 'b"
-                               , True, (255, 255, 255))
-            textRect = text.get_rect()
-            self.screen.blit(text, textRect)
+            self.draw_buttons(self.screen)
             self.clean = False
 
     def draw_map(self, keyboard_events):
-        if keyboard_events.is_drawing_line:
+        if keyboard_events.is_first_line:
             keyboard_events.line1 = []
-            keyboard_events.is_drawing_line = False
+            keyboard_events.is_first_line = False
 
         for i in range(0, len(keyboard_events.line1) - 1):
             pygame.draw.line(self.screen, self.line1_color, keyboard_events.line1[i],
@@ -46,6 +43,15 @@ class MapEditor:
             keyboardEvents.line2 = list[half + 1:]
         if keyboardEvents.isPressed(mapped_key('b')):
             return True
+
+    def draw_buttons(self, screen):
+        for button_label in self.buttons:
+            button = self.buttons.get(button_label)
+            button.draw(screen)
+
+    def prepare_buttons(self):
+        back_button = Button(2140, 265, "Back")
+        self.buttons["back"] = back_button
 
 
 def mapped_key(key):

@@ -11,7 +11,7 @@ class Menu:
         self.background = pygame.transform.scale(self.background, (self.window_width, self.window_height))
         self.title = pygame.image.load("resources/images/title.png")
         self.buttons = {}
-        self.back_button = Button(2140, 265, "Back")
+        self.prepare_menu()
         # pygame.mixer.music.load('resources/sounds/opening.mp3')
         # pygame.mixer.music.play(-1)
 
@@ -28,13 +28,9 @@ class Menu:
         self.buttons["options"] = options_button
 
     def draw_main_menu(self):
-        self.prepare_menu()
         self.screen.blit(self.background, (0, 0))
         self.screen.blit(self.title, ((self.window_width - self.title.get_width()) // 2, self.title.get_height() // 2))
         for button_label in self.buttons:
             if button_label != "back":
                 button = self.buttons.get(button_label)
                 button.draw(self.screen)
-
-    def draw_back_menu(self):
-        self.back_button.draw(self.screen)

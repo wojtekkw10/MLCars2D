@@ -2,6 +2,7 @@ import pygame
 import numpy as np
 import constants
 import files_ops
+from gameObjects.button import Button
 
 HALF = (1000000, 1000000)
 
@@ -21,6 +22,7 @@ class Track:
         self.sectors = [[[] for _ in range(constants.X_SECTOR_NO)] for _ in range(constants.Y_SECTOR_NO)]
         self.initialize_points()
         self.camera_state = (0, 0)
+        self.back_button = Button(2140, 265, "Back")
 
     def initialize_points(self, is_default_map=True):
 
@@ -108,6 +110,7 @@ class Track:
         if self.camera_state != camera.get_state:
             self.camera_state = camera.get_state()
 
+        self.back_button.draw(self.screen)
 
 def prepare_lines(mapa):
     half = mapa.index(HALF)
