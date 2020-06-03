@@ -133,34 +133,36 @@ class Car:
             self.sensors.setup_sensors(
                 self.angle, pygame.Vector2(self.car_center_x, self.car_center_y))
 
+
     def draw(self, surface, camera):
         rotated = pygame.transform.rotate(self.image, self.angle.degree)
-        image_dest = pygame.Vector2(self.car_center_x-self.car_width/2,
-                                     self.car_center_y-self.car_height/2)
+        image_dest = pygame.Vector2(self.position_x - self.car_width / 2,
+                                    self.position_y - self.car_height / 2)
         self.screen.blit(rotated, image_dest)
 
         self.sensors.draw_sensors(surface, camera)
+
 
     def rotate_car_points(self):
         rotation_angle = constants.MAX_RADIANS - self.angle.radians
 
         (flx, fly) = self.car_center_x + self.car_width / \
-            2.0, self.car_center_y - self.car_height / 2.0
+                     2.0, self.car_center_y - self.car_height / 2.0
         self.car_points['front_left'] = self.get_rotated_point(
             flx, fly, rotation_angle)
 
         (frx, fry) = self.car_center_x + self.car_width / \
-            2.0, self.car_center_y + self.car_height / 2.0
+                     2.0, self.car_center_y + self.car_height / 2.0
         self.car_points['front_right'] = self.get_rotated_point(
             frx, fry, rotation_angle)
 
         (rlx, rly) = self.car_center_x - self.car_width / \
-            2.0, self.car_center_y - self.car_height / 2.0
+                     2.0, self.car_center_y - self.car_height / 2.0
         self.car_points['rear_left'] = self.get_rotated_point(
             rlx, rly, rotation_angle)
 
         (rrx, rry) = self.car_center_x - self.car_width / \
-            2.0, self.car_center_y + self.car_height / 2.0
+                     2.0, self.car_center_y + self.car_height / 2.0
         self.car_points['rear_right'] = self.get_rotated_point(
             rrx, rry, rotation_angle)
 
