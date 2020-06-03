@@ -183,9 +183,9 @@ class Car:
                  sin(angle) + (y - self.car_center_y) * cos(angle))
         return rx, ry
 
-    def detect_collision(self, grid, sectors):
+    def detect_collision(self, sectors):
         if not self.collision_happened and self.should_check_collisions:
-            self.sensors.check_collision(grid, sectors)
+            self.sensors.check_collision(sectors)
 
         if self.should_check_collisions:
             self.should_check_collisions = False

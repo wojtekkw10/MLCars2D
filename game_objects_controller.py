@@ -125,7 +125,7 @@ class GameObjectsController:
         for car in self.cars:
             car.handle_neural_network()
             car.update(self.camera)
-            car.detect_collision(self.track.grid, self.track.sectors)
+            car.detect_collision(self.track.sectors)
 
     def map_editor_button_action(self, keyboard_events):
         map_editor = MapEditor(self.screen)

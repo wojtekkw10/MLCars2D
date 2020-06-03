@@ -26,10 +26,20 @@ def determine_line_end(sectors, origin, line):
         for x in range(int(x1), int(x2)):
             y = a * (x - x1) + y1
             x, y = int(x), int(y)
-            x_sector = x // constants.X_SECTOR_SIZE
-            y_sector = y // constants.Y_SECTOR_SIZE
-            if (x, y) in sectors[y_sector][x_sector]:
-                return pygame.Vector2(x, y), True
+
+            try:
+                x_sector = x // constants.X_SECTOR_SIZE
+                y_sector = y // constants.Y_SECTOR_SIZE
+                if (x, y) in sectors[y_sector][x_sector]:
+                    return pygame.Vector2(x, y), True
+            except IndexError:
+                pass
+
+            # try:
+            #     if grid[x, y]:  # more precise
+            #         return pygame.Vector2(x, y), True
+            # except IndexError:  # run out of track grid
+            #     pass
     else:
         if origin.y < line.y:
             (x1, y1) = origin
@@ -43,10 +53,20 @@ def determine_line_end(sectors, origin, line):
         for y in reversed(range(int(y1), int(y2))):
             x = a * (y - y1) + x1
             x, y = int(x), int(y)
+
             x_sector = x // constants.X_SECTOR_SIZE
             y_sector = y // constants.Y_SECTOR_SIZE
-            if (x, y) in sectors[y_sector][x_sector]:
-                return pygame.Vector2(x, y), True
+            try:
+                if (x, y) in sectors[y_sector][x_sector]:
+                    return pygame.Vector2(x, y), True
+            except IndexError:
+                pass
+
+            # try:
+            #     if grid[x, y]:  # more precise
+            #         return pygame.Vector2(x, y), True
+            # except IndexError:  # run out of track grid
+            #     pass
 
     return line, False
 
