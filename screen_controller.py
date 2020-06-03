@@ -20,7 +20,12 @@ class ScreenController:
 
     def display(self):
         pygame.init()
+        pygame.display.set_caption('MLCars2D')
+
         screen = pygame.display.set_mode(self.size)
+
+        icon = pygame.image.load('resources/images/icon.png')
+        pygame.display.set_icon(icon)
 
         self.game_objects_controller = GameObjectsController(
             self.window_width, self.window_height, screen, self)

@@ -1,5 +1,4 @@
 import pygame
-import numpy as np
 import constants
 import files_ops
 
@@ -9,7 +8,6 @@ class Track:
     def __init__(self, screen, track_width=100):
         self.screen = screen
         self.track_width = track_width
-        self.grid = np.zeros(self.screen.get_size())
         self.track_line1_points = [(0, 20)]
         self.track_line2_points = []
         # self.previous_point = self.track_line1_points[0]
@@ -60,7 +58,6 @@ class Track:
         for x in range(start, end):
             y = a * (x - x1) + y1
             x, y = int(x), int(y)
-            self.grid[x, y] = 1
             x_sector = x // constants.X_SECTOR_SIZE
             y_sector = y // constants.Y_SECTOR_SIZE
             self.sectors[y_sector][x_sector].append((x, y))
@@ -74,7 +71,6 @@ class Track:
             a = (x2 - x1) / (y2 - y1)
             x = a * (y - y1) + x1
             x, y = int(x), int(y)
-            self.grid[x, y] = 1
             x_sector = x // constants.X_SECTOR_SIZE
             y_sector = y // constants.Y_SECTOR_SIZE
             self.sectors[y_sector][x_sector].append((x, y))

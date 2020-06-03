@@ -1,6 +1,7 @@
 import pygame
 from math import cos, sin, sqrt
 from angle import Angle
+import constants
 
 SENSOR_WIDTH_INITIAL = 90
 SENSORS_COLOR_INACTIVE = pygame.Color(50, 120, 255, a=100)
@@ -11,7 +12,7 @@ def calculate_vector(origin, radians, sensor_size):
     return pygame.Vector2(cos(radians)*sensor_size + origin.x, sin(radians)*sensor_size + origin.y)
 
 
-def determine_line_end(grid, origin, line):
+def determine_line_end(sectors, origin, line):
     if abs(origin.x - line.x) > abs(origin.y-line.y):
         if origin.x < line.x:
             (x1, y1) = origin
@@ -25,11 +26,20 @@ def determine_line_end(grid, origin, line):
         for x in range(int(x1), int(x2)):
             y = a * (x - x1) + y1
             x, y = int(x), int(y)
+
             try:
-                if grid[x, y]:  # more precise
+                x_sector = x // constants.X_SECTOR_SIZE
+                y_sector = y // constants.Y_SECTOR_SIZE
+                if (x, y) in sectors[y_sector][x_sector]:
                     return pygame.Vector2(x, y), True
-            except IndexError:  # run out of track grid
+            except IndexError:
                 pass
+
+            # try:
+            #     if grid[x, y]:  # more precise
+            #         return pygame.Vector2(x, y), True
+            # except IndexError:  # run out of track grid
+            #     pass
     else:
         if origin.y < line.y:
             (x1, y1) = origin
@@ -43,11 +53,20 @@ def determine_line_end(grid, origin, line):
         for y in reversed(range(int(y1), int(y2))):
             x = a * (y - y1) + x1
             x, y = int(x), int(y)
+
+            x_sector = x // constants.X_SECTOR_SIZE
+            y_sector = y // constants.Y_SECTOR_SIZE
             try:
-                if grid[x, y]:  # more precise
+                if (x, y) in sectors[y_sector][x_sector]:
                     return pygame.Vector2(x, y), True
-            except IndexError:  # run out of track grid
+            except IndexError:
                 pass
+
+            # try:
+            #     if grid[x, y]:  # more precise
+            #         return pygame.Vector2(x, y), True
+            # except IndexError:  # run out of track grid
+            #     pass
 
     return line, False
 
@@ -105,10 +124,10 @@ class Sensors:
                 origin, -Angle(angle.degree + offset).radians, self.detected[line].sensor_size))
             offset += 30
 
-    def check_collision(self, grid):
+    def check_collision(self, sectors):
         for line in self.lines:
             vector, detected = determine_line_end(
-                grid, self.origin, self.detected[line].vector)
+                sectors, self.origin, self.detected[line].vector)
 
             self.detected[line].update_vector(vector)
             self.detected[line].update_detection_distance(self.origin)
