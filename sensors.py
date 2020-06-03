@@ -12,7 +12,7 @@ def calculate_vector(origin, radians, sensor_size):
     return pygame.Vector2(cos(radians)*sensor_size + origin.x, sin(radians)*sensor_size + origin.y)
 
 
-def determine_line_end(grid, sectors, origin, line):
+def determine_line_end(sectors, origin, line):
     if abs(origin.x - line.x) > abs(origin.y-line.y):
         if origin.x < line.x:
             (x1, y1) = origin
@@ -104,10 +104,10 @@ class Sensors:
                 origin, -Angle(angle.degree + offset).radians, self.detected[line].sensor_size))
             offset += 31
 
-    def check_collision(self, grid, sectors):
+    def check_collision(self, sectors):
         for line in self.lines:
             vector, detected = determine_line_end(
-                grid, sectors, self.origin, self.detected[line].vector)
+                sectors, self.origin, self.detected[line].vector)
 
             self.detected[line].update_vector(vector)
             self.detected[line].update_detection_distance(self.origin)
