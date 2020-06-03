@@ -54,8 +54,11 @@ class GameObjectsController:
             complex_camera, self.window_width + 100, self.window_height + 100)  # insert track size here
 
     # for adjusting menu in the future
-    def display_menu(self):
-        self.menu.draw()
+    def display_menu(self, main_menu=True):
+        if main_menu:
+            self.menu.draw_main_menu()
+        else:
+            self.menu.draw_back_menu()
 
     def display_stat_box(self):
         self.stat_box.display()
@@ -97,8 +100,16 @@ class GameObjectsController:
             for button_label in self.menu.buttons:
                 button = self.menu.buttons.get(button_label)
                 button.check_is_button_pressed(event, self.screen)
+        else:
+            button = self.menu.back_button
+            button.check_is_button_pressed(event, self.screen)
 
     def perform_action(self, keyboardEvents):
+        if self.menu.back_button.is_button_pressed:
+            self.go_back_to_menu()
+            self.menu.back_button.is_button_pressed = False
+            keyboardEvents.line1, keyboardEvents.line2 = [], []
+
         for button_label in self.menu.buttons:
             button = self.menu.buttons.get(button_label)
             if button.is_button_pressed:
@@ -115,9 +126,7 @@ class GameObjectsController:
         self.update_simulation()
         self.display_track()
         self.display_stat_box()
-
-        if keyboardEvents.isPressed(pygame.K_b):
-            self.go_back_to_menu()
+        self.display_menu(False)
 
     def update_simulation(self):
         # self.camera.update(self.cars[0])
@@ -149,6 +158,7 @@ class GameObjectsController:
     def map_editor_button_action(self, keyboard_events):
         map_editor = MapEditor(self.screen)
         map_editor.draw_editor()
+        self.display_menu(False)
         map_editor.draw_map(keyboard_events)
 
         if map_editor.handle_keyboard(keyboard_events):
@@ -157,6 +167,7 @@ class GameObjectsController:
     def options_button_action(self, keyboard_events):
         self.options_scene.update(keyboard_events)
         self.options_scene.draw(self.screen)
+        self.display_menu(False)
 
         if keyboard_events.isPressed(pygame.K_b):
             amount = self.options_scene.get_cars_amount()

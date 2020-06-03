@@ -1,13 +1,13 @@
 import pygame
 import files_ops
-
+from gameObjects.menu import Menu
+import constants
 
 class MapEditor:
     def __init__(self, screen):
         self.screen = screen
         self.line1_color = (148, 181, 51)
         self.line2_color = (55, 16, 21)
-        self.first_attempt = True
         self.clean = True
 
     def draw_editor(self):
@@ -22,9 +22,6 @@ class MapEditor:
             self.clean = False
 
     def draw_map(self, keyboard_events):
-
-        print(keyboard_events.line1)
-
         if keyboard_events.is_drawing_line:
             keyboard_events.line1 = []
             keyboard_events.is_drawing_line = False
@@ -46,7 +43,7 @@ class MapEditor:
             list = files_ops.load_map()
             half = list.index((1000000, 1000000))
             keyboardEvents.line1 = list[:half]
-            keyboardEvents.line2 = list[half+1:]
+            keyboardEvents.line2 = list[half + 1:]
         if keyboardEvents.isPressed(mapped_key('b')):
             return True
 
