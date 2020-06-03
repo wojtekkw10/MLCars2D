@@ -1,5 +1,6 @@
 import pygame
 import files_ops
+import constants
 from gameObjects.button import Button
 
 
@@ -16,6 +17,7 @@ class MapEditor:
         if self.clean:
             self.screen.fill((56, 59, 56))
             self.draw_buttons(self.screen)
+            self.draw_instructions()
             self.clean = False
 
     def draw_map(self, keyboard_events):
@@ -31,18 +33,13 @@ class MapEditor:
                              keyboard_events.line2[i + 1], 5)
 
     def handle_keyboard(self, keyboardEvents):
-        if keyboardEvents.isPressed(mapped_key('e')):
-            self.screen.fill((56, 59, 56))
-            keyboardEvents.line1, keyboardEvents.line2 = [], []
         if keyboardEvents.isPressed(mapped_key('s')):
             files_ops.save_map(keyboardEvents.line1, keyboardEvents.line2)
         if keyboardEvents.isPressed(mapped_key('l')):
-            list = files_ops.load_map()
-            half = list.index((1000000, 1000000))
-            keyboardEvents.line1 = list[:half]
-            keyboardEvents.line2 = list[half + 1:]
-        if keyboardEvents.isPressed(mapped_key('b')):
-            return True
+            mapa = files_ops.load_map()
+            half = mapa.index(constants.HALF)
+            keyboardEvents.line1 = mapa[:half]
+            keyboardEvents.line2 = mapa[half + 1:]
 
     def draw_buttons(self, screen):
         for button_label in self.buttons:
@@ -50,14 +47,46 @@ class MapEditor:
             button.draw(screen)
 
     def prepare_buttons(self):
-        back_button = Button(2140, 265, "Back")
+        back_button = Button(2400, 265, "Back")
+        erase_button = Button(2400, 240, "Erase")
         self.buttons["back"] = back_button
+        self.buttons["erase"] = erase_button
 
+        for button_label in self.buttons:
+            button = self.buttons.get(button_label)
+            button.button_width = 100
+            button.button_height = 45
+            button.font_size = constants.SMALL_FONT
+
+    def draw_instructions(self):
+        green = (0, 255, 0)
+        font = pygame.font.Font('freesansbold.ttf', 10)
+        text1 = font.render('Left Mouse Button - draw first line ', True, green)
+        text2 = font.render('Right Mouse Button - draw second line', True, green)
+        text3 = font.render('Press S for save map', True, green)
+        text4 = font.render('Press L for load previous map', True, green)
+
+        textRect1 = text1.get_rect()
+        textRect2 = text2.get_rect()
+        textRect3 = text3.get_rect()
+        textRect4 = text4.get_rect()
+
+        textRect4.midleft = (constants.EDITOR_INSTRUCTIOS_X,
+                             constants.EDITOR_INSTRUCTIOS_Y)
+        textRect3.midleft = (constants.EDITOR_INSTRUCTIOS_X,
+                             constants.EDITOR_INSTRUCTIOS_Y - 15)
+        textRect2.midleft = (constants.EDITOR_INSTRUCTIOS_X,
+                             constants.EDITOR_INSTRUCTIOS_Y - 30)
+        textRect1.midleft = (constants.EDITOR_INSTRUCTIOS_X,
+                             constants.EDITOR_INSTRUCTIOS_Y - 45)
+
+        self.screen.blit(text1, textRect1)
+        self.screen.blit(text2, textRect2)
+        self.screen.blit(text3, textRect3)
+        self.screen.blit(text4, textRect4)
 
 def mapped_key(key):
     return {
         's': pygame.K_s,
         'l': pygame.K_l,
-        'b': pygame.K_b,
-        'e': pygame.K_e
     }.get(key)

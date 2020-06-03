@@ -36,7 +36,6 @@ class OptionsScene:
 
         self.clock.tick(30)
 
-
     def draw_label(self, screen):
         text = self.font.render(
             "Insert cars amount ...", True, (255, 255, 255))
@@ -49,4 +48,7 @@ class OptionsScene:
 
     def prepare_buttons(self):
         back_button = Button(2140, 265, "Back")
+        change_map_button = Button(2140, 225
+                                   , "Load Track")
         self.buttons["back"] = back_button
+        self.buttons["custom_map"] = change_map_button

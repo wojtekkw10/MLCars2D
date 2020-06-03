@@ -1,6 +1,7 @@
 import threading
 
 import constants
+import files_ops
 from gameObjects.menu import Menu
 from gameObjects.car import Car
 from gameObjects.track import Track
@@ -126,20 +127,19 @@ class GameObjectsController:
             if button.is_button_pressed:
                 if button_label == "back":
                     self.options_back_button_action()
+                if button_label == "custom_map":
+                    self.options_custom_map_button_action()
+
         for button_label in self.map_editor_scene.buttons:
             button = self.map_editor_scene.buttons.get(button_label)
             if button.is_button_pressed:
-                keyboardEvents.line1, keyboardEvents.line2 = [], []
-                self.map_editor_scene.clean = True
-                self.go_back_to_menu()
+                if button_label == "erase":
+                    self.editor_erase_button_action(keyboardEvents)
+                if button_label == "back":
+                    self.editor_back_button_action(keyboardEvents)
+
         if self.track.back_button.is_button_pressed:
             self.go_back_to_menu()
-
-    def play_button_action(self):
-        self.play_action_frame_count += 1
-        self.update_simulation()
-        self.display_track()
-        self.display_stat_box()
 
     def update_simulation(self):
         # self.camera.update(self.cars[0])
@@ -168,17 +168,46 @@ class GameObjectsController:
         for thread in threads:
             thread.join()
 
-    def options_button_action(self, keyboard_events):
-        self.options_scene.update(keyboard_events)
-        self.options_scene.draw(self.screen)
-
-        if keyboard_events.isPressed(pygame.K_v):
-            self.track.initialize_points(False)
-
+    # -----------------------------buttons actions------------------------------------------
     def map_editor_button_action(self, keyboard_events):
         self.map_editor_scene.draw_editor()
         self.map_editor_scene.draw_map(keyboard_events)
         self.map_editor_scene.handle_keyboard(keyboard_events)
+
+    def editor_back_button_action(self, keyboardEvents):
+        keyboardEvents.line1, keyboardEvents.line2 = [], []
+        self.map_editor_scene.clean = True
+        self.go_back_to_menu()
+
+    def editor_erase_button_action(self, keyboardEvents):
+        self.map_editor_scene.screen.fill((56, 59, 56))
+        self.map_editor_scene.clean = True
+        self.map_editor_scene.draw_editor()
+        keyboardEvents.line1, keyboardEvents.line2 = [], []
+        self.map_editor_scene.buttons.get("erase").is_button_pressed = False
+
+    def options_button_action(self, keyboard_events):
+        self.options_scene.update(keyboard_events)
+        self.options_scene.draw(self.screen)
+
+    def options_custom_map_button_action(self):
+        self.track.initialize_points(False)
+
+    def options_back_button_action(self):
+        amount = self.options_scene.get_cars_amount()
+        if amount != "":
+            amount = int(amount)
+            # self.stat_box.clear_score()
+            self.number_of_cars = amount
+            self.screen_controller.reinitialize_genetic_algorithm(
+                Params(amount // 4))
+        self.go_back_to_menu()
+
+    def play_button_action(self):
+        self.play_action_frame_count += 1
+        self.update_simulation()
+        self.display_track()
+        self.display_stat_box()
 
     def go_back_to_menu(self):
         self.actual_menu = constants.MAIN_MENU
@@ -193,14 +222,3 @@ class GameObjectsController:
             button.is_button_pressed = False
         self.track.back_button.is_button_pressed = False
         self.display_menu()
-
-#-----------------------------buttons actions------------------------------------------
-    def options_back_button_action(self):
-        amount = self.options_scene.get_cars_amount()
-        if amount != "":
-            amount = int(amount)
-            # self.stat_box.clear_score()
-            self.number_of_cars = amount
-            self.screen_controller.reinitialize_genetic_algorithm(
-                Params(amount // 4))
-        self.go_back_to_menu()

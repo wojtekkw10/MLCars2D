@@ -1,5 +1,5 @@
 import pygame
-
+import constants
 
 class Button:
     BG_COLOR = 255, 255, 255
@@ -13,6 +13,7 @@ class Button:
         self.x = (x - self.button_width) / 2
         self.y = y * 2
         self.is_button_pressed = False
+        self.font_size = constants.BIG_FONT
 
     def draw(self, screen, outline=None):
         if outline:
@@ -23,7 +24,7 @@ class Button:
                                                   self.button_width, self.button_height), 0)
 
         if self.label != '':
-            font = pygame.font.SysFont('comicsans', 60)
+            font = pygame.font.SysFont('comicsans', self.font_size)
             text = font.render(self.label, 1, (0, 0, 0))
             screen.blit(text, (
                 self.x + (self.button_width / 2 - text.get_width() / 2), self.y

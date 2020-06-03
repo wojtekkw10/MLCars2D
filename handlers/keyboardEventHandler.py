@@ -1,5 +1,5 @@
 import pygame
-
+import constants
 
 class KeyboardEventHandler:
     KEY_PRESSED = "DOWN"
@@ -17,7 +17,6 @@ class KeyboardEventHandler:
         self.mouse_click = None
 
     def process(self, event):
-
         if event.type == pygame.KEYDOWN:
             self.keys[event.key] = KeyboardEventHandler.KEY_PRESSED
             self.unicode_buffor = event.unicode
@@ -25,9 +24,9 @@ class KeyboardEventHandler:
             self.keys[event.key] = KeyboardEventHandler.KEY_NOTPRESSED
         elif event.type == pygame.MOUSEBUTTONDOWN:
             self.mouse_click = pygame.mouse.get_pos()
-            if event.button == 1:
+            if event.button == constants.LEFT_MOUSE_BUTTON:
                 self.line1.append(pygame.mouse.get_pos())
-            elif event.button == 3:
+            elif event.button == constants.RIGHT_MOUSE_BUTTON:
                 self.line2.append(pygame.mouse.get_pos())
 
     def isPressed(self, key):
