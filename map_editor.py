@@ -5,7 +5,9 @@ import files_ops
 class MapEditor:
     def __init__(self, screen):
         self.screen = screen
-        self.line_color = (148, 181, 51)
+        self.line1_color = (148, 181, 51)
+        self.line2_color = (55, 16, 21)
+        self.first_attempt = True
         self.clean = True
 
     def draw_editor(self):
@@ -20,18 +22,31 @@ class MapEditor:
             self.clean = False
 
     def draw_map(self, keyboard_events):
-        if len(keyboard_events.start_positions) > 1 and len(keyboard_events.end_positions) > 1:
-            for i in range(1, len(keyboard_events.end_positions)):
-                pygame.draw.line(self.screen, self.line_color, keyboard_events.start_positions[i],
-                                 keyboard_events.end_positions[i], 5)
+
+        print(keyboard_events.line1)
+
+        if keyboard_events.is_drawing_line:
+            keyboard_events.line1 = []
+            keyboard_events.is_drawing_line = False
+
+        for i in range(0, len(keyboard_events.line1) - 1):
+            pygame.draw.line(self.screen, self.line1_color, keyboard_events.line1[i],
+                             keyboard_events.line1[i + 1], 5)
+        for i in range(0, len(keyboard_events.line2) - 1):
+            pygame.draw.line(self.screen, self.line2_color, keyboard_events.line2[i],
+                             keyboard_events.line2[i + 1], 5)
 
     def handle_keyboard(self, keyboardEvents):
+        if keyboardEvents.isPressed(mapped_key('e')):
+            self.screen.fill((56, 59, 56))
+            keyboardEvents.line1, keyboardEvents.line2 = [], []
         if keyboardEvents.isPressed(mapped_key('s')):
-            files_ops.save_map(keyboardEvents.start_positions, keyboardEvents.end_positions)
+            files_ops.save_map(keyboardEvents.line1, keyboardEvents.line2)
         if keyboardEvents.isPressed(mapped_key('l')):
             list = files_ops.load_map()
-            keyboardEvents.start_positions = list[:len(list) // 2]
-            keyboardEvents.end_positions = list[len(list) // 2:]
+            half = list.index((1000000, 1000000))
+            keyboardEvents.line1 = list[:half]
+            keyboardEvents.line2 = list[half+1:]
         if keyboardEvents.isPressed(mapped_key('b')):
             return True
 
@@ -40,7 +55,6 @@ def mapped_key(key):
     return {
         's': pygame.K_s,
         'l': pygame.K_l,
-        'b': pygame.K_b
+        'b': pygame.K_b,
+        'e': pygame.K_e
     }.get(key)
-
-
