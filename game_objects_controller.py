@@ -192,7 +192,14 @@ class GameObjectsController:
         self.options_scene.draw(self.screen)
 
     def options_custom_map_button_action(self):
-        self.track.initialize_points(False)
+        button = self.options_scene.buttons.get("custom_map")
+        if button.label == "Load Track":
+            button.label = "Default"
+            self.track.initialize_points(False)
+        else:
+            button.label = "Load Track"
+            self.track.initialize_points()
+        button.is_button_pressed = False
 
     def options_back_button_action(self):
         amount = self.options_scene.get_cars_amount()
