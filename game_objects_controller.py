@@ -197,13 +197,14 @@ class GameObjectsController:
         else:
             button.label = "Load Track"
             self.track.initialize_points()
+        self.stat_box.clear_score()
         button.is_button_pressed = False
 
     def options_back_button_action(self):
         amount = self.options_scene.get_cars_amount()
         if amount != "":
             amount = int(amount)
-            # self.stat_box.clear_score()
+            self.stat_box.clear_score()
             self.number_of_cars = amount
             self.screen_controller.reinitialize_genetic_algorithm(
                 Params(amount // 4))
