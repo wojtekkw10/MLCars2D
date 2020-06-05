@@ -2,6 +2,8 @@ import pygame as pg
 import constants
 import sys
 
+from gameObjects.button import Button
+
 
 class StatBox:
 
@@ -22,6 +24,7 @@ class StatBox:
         self.stat_height = height - 2 * self.padding
         self.stat_width = width - 2 * self.padding
         self.hidden = False
+        self.stat_button = Button(self.x_pos + self.width - 60, 265, "hide")
 
     def new_score(self, fitness):
         self.fitness_list.append(fitness)
@@ -58,25 +61,9 @@ class StatBox:
                              (self.fitness_points[i + 1][0],
                               self.fitness_points[i + 1][1]),
                              2)
-            self.hide_button("hide", self.y_pos + self.height)
-        else:
-            self.hide_button("show", self.y_pos)
 
-    def hide_button(self, text, button_height):
-        pg.draw.rect(self.win, (100, 100, 100), (self.x_pos + self.width - 60, button_height, 60, 30))
-        myfont = pg.font.SysFont('Arial', 25)
-        textsurface = myfont.render(text, False, (0, 0, 0))
-        self.win.blit(textsurface, (self.x_pos + self.width - 60, button_height))
 
-    def check_if_pressed(self, pos_x, pos_y):
 
-        offset = self.height
-        if self.hidden:
-            offset = 0
-
-        if self.x_pos + self.width - 60 < pos_x < self.x_pos + self.width:
-            if self.y_pos + offset < pos_y < self.y_pos + offset + 30:
-                self.hidden = not self.hidden
 
 
 # example

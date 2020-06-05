@@ -1,14 +1,11 @@
 import threading
 
-import pygame
-
-import map_editor
-from angle import Angle
+import constants
 from gameObjects.menu import Menu
 from gameObjects.car import Car
 from gameObjects.track import Track
 from handlers.camera import Camera
-from map_editor import MapEditor
+from scenes.map_editor_scene import MapEditor
 from params import Params
 from stat_display import StatBox
 import pygame
@@ -24,9 +21,10 @@ class GameObjectsController:
         self.menu = Menu(self.screen, self.window_width, self.window_height)
         self.options_scene = OptionsScene(
             self.window_width, self.window_height)
+        self.map_editor_scene = MapEditor(self.screen)
         self.stat_box = StatBox(screen, 890, 10, 300, 150, 0.05)
         self.track = Track(self.screen)
-        self.is_some_action_going_on = False
+        self.actual_menu = constants.MAIN_MENU
         self.play_action_frame_count = 1
         self.number_of_cars = 0
         self.screen_controller = screen_controller
@@ -55,7 +53,7 @@ class GameObjectsController:
 
     # for adjusting menu in the future
     def display_menu(self):
-        self.menu.draw()
+        self.menu.draw_main_menu()
 
     def display_stat_box(self):
         self.stat_box.display()
@@ -95,31 +93,70 @@ class GameObjectsController:
                 other_cars.append(car)
 
     def check_pressed_buttons(self, event):
-        if not self.is_some_action_going_on:
+        if self.actual_menu == constants.MAIN_MENU:
             for button_label in self.menu.buttons:
                 button = self.menu.buttons.get(button_label)
                 button.check_is_button_pressed(event, self.screen)
+        elif self.actual_menu == constants.OPTIONS_MENU:
+            for button_label in self.options_scene.buttons:
+                button = self.options_scene.buttons.get(button_label)
+                button.check_is_button_pressed(event, self.screen)
+        elif self.actual_menu == constants.EDITOR_MENU:
+            for button_label in self.map_editor_scene.buttons:
+                button = self.map_editor_scene.buttons.get(button_label)
+                button.check_is_button_pressed(event, self.screen)
+        elif self.actual_menu == constants.PLAY_MENU:
+            button = self.track.back_button
+            button.check_is_button_pressed(event, self.screen)
+            button = self.track.stat_button
+            button.check_is_button_pressed(event, self.screen)
+
 
     def perform_action(self, keyboardEvents):
         for button_label in self.menu.buttons:
             button = self.menu.buttons.get(button_label)
             if button.is_button_pressed:
-                self.is_some_action_going_on = True
                 if button_label == "play":
-                    self.play_button_action(keyboardEvents)
+                    self.actual_menu = constants.PLAY_MENU
+                    self.play_button_action()
                 if button_label == "map editor":
+                    self.actual_menu = constants.EDITOR_MENU
                     self.map_editor_button_action(keyboardEvents)
                 if button_label == "options":
+                    self.actual_menu = constants.OPTIONS_MENU
                     self.options_button_action(keyboardEvents)
 
-    def play_button_action(self, keyboardEvents):
-        self.play_action_frame_count += 1
-        self.update_simulation()
-        self.display_track()
-        self.display_stat_box()
+        for button_label in self.options_scene.buttons:
+            button = self.options_scene.buttons.get(button_label)
+            if button.is_button_pressed:
+                if button_label == "back":
+                    self.options_back_button_action()
+                if button_label == "custom_map":
+                    self.options_custom_map_button_action()
 
-        if keyboardEvents.is_pressed(pygame.K_b):
+
+        for button_label in self.map_editor_scene.buttons:
+            button = self.map_editor_scene.buttons.get(button_label)
+            if button.is_button_pressed:
+                if button_label == "erase":
+                    self.editor_erase_button_action(keyboardEvents)
+                if button_label == "back":
+                    self.editor_back_button_action(keyboardEvents)
+
+        if self.track.back_button.is_button_pressed:
             self.go_back_to_menu()
+
+        if self.track.stat_button.is_button_pressed:
+            if self.stat_box.hidden == False:
+                self.track.stat_button.label = "Show"
+                self.stat_box.hidden = True
+            else:
+                self.track.stat_button.label = "Hide"
+                self.stat_box.hidden = False
+            self.track.stat_button.is_button_pressed = False
+
+
+
 
     def update_simulation(self):
         for car in self.cars:
@@ -127,37 +164,67 @@ class GameObjectsController:
             car.update(self.camera)
             car.detect_collision(self.track.sectors)
 
+    # -----------------------------buttons actions------------------------------------------
     def map_editor_button_action(self, keyboard_events):
-        map_editor = MapEditor(self.screen)
-        map_editor.draw_editor()
-        map_editor.draw_map(keyboard_events)
+        self.map_editor_scene.draw_editor()
+        keyboard_events.drawing_line = True
+        self.map_editor_scene.draw_map(keyboard_events)
+        self.map_editor_scene.handle_keyboard(keyboard_events)
 
-        if map_editor.handle_keyboard(keyboard_events):
-            self.go_back_to_menu()
+    def editor_back_button_action(self, keyboardEvents):
+        keyboardEvents.line1, keyboardEvents.line2 = [], []
+        self.map_editor_scene.clean = True
+        keyboardEvents.drawing_line = False
+        self.go_back_to_menu()
+
+    def editor_erase_button_action(self, keyboardEvents):
+        self.map_editor_scene.screen.fill((56, 59, 56))
+        self.map_editor_scene.clean = True
+        self.map_editor_scene.draw_editor()
+        keyboardEvents.line1, keyboardEvents.line2 = [], []
+        self.map_editor_scene.buttons.get("erase").is_button_pressed = False
 
     def options_button_action(self, keyboard_events):
         self.options_scene.update(keyboard_events)
         self.options_scene.draw(self.screen)
 
-        if keyboard_events.is_pressed(pygame.K_b):
-            amount = self.options_scene.get_cars_amount()
-            if amount != "":
-                amount = int(amount)
 
-                self.stat_box.clear_score()
-                self.number_of_cars = amount
-                self.screen_controller.reinitialize_genetic_algorithm(
-                    Params(amount//4))
-
-            self.go_back_to_menu()
-
-        if keyboard_events.is_pressed(pygame.K_v):
+    def options_custom_map_button_action(self):
+        button = self.options_scene.buttons.get("custom_map")
+        if button.label == "Load Track":
+            button.label = "Default"
             self.track.initialize_points(False)
+        else:
+            button.label = "Load Track"
+            self.track.initialize_points()
+        button.is_button_pressed = False
+
+    def options_back_button_action(self):
+        amount = self.options_scene.get_cars_amount()
+        if amount != "":
+            amount = int(amount)
+            # self.stat_box.clear_score()
+            self.number_of_cars = amount
+            self.screen_controller.reinitialize_genetic_algorithm(
+                Params(amount // 4))
+        self.go_back_to_menu()
+
+    def play_button_action(self):
+        self.play_action_frame_count += 1
+        self.update_simulation()
+        self.display_track()
+        self.display_stat_box()
 
     def go_back_to_menu(self):
-        self.is_some_action_going_on = False
+        self.actual_menu = constants.MAIN_MENU
         for button_label in self.menu.buttons:
             button = self.menu.buttons.get(button_label)
             button.is_button_pressed = False
-
+        for button_label in self.options_scene.buttons:
+            button = self.options_scene.buttons.get(button_label)
+            button.is_button_pressed = False
+        for button_label in self.map_editor_scene.buttons:
+            button = self.map_editor_scene.buttons.get(button_label)
+            button.is_button_pressed = False
+        self.track.back_button.is_button_pressed = False
         self.display_menu()

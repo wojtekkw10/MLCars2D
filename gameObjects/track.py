@@ -1,7 +1,7 @@
 import pygame
 import constants
 import files_ops
-
+from gameObjects.button import Button
 
 class Track:
 
@@ -13,11 +13,14 @@ class Track:
         # self.previous_point = self.track_line1_points[0]
         self.sectors = [[[] for _ in range(constants.X_SECTOR_NO)] for _ in range(constants.Y_SECTOR_NO)]
         self.initialize_points()
+        self.camera_state = (0, 0)
+        self.back_button = Button(2140, 265, "Back")
+        self.stat_button = Button(2430, 80, "Hide")
+
         self.position = (0, 0)
 
+
     def initialize_points(self, is_default_map=True):
-        line1 = []
-        line2 = []
 
         if is_default_map:
             line1 = [(0, 20),
@@ -29,17 +32,9 @@ class Track:
                      (979, 379), (890, 450), (572, 458),
                      (200, 359), (2, 342)]
         else:
-            loaded_map = files_ops.load_map()
-            start_positions = loaded_map[:len(loaded_map) // 2]
-            end_positions = loaded_map[len(loaded_map) // 2:]
+            mapa = files_ops.load_map()
+            line1, line2 = prepare_lines(mapa)
 
-            line1.append(start_positions[1])
-            for i in range(1, len(end_positions) // 2 + 1):
-                line1.append(end_positions[i])
-
-            line2.append(start_positions[len(start_positions) // 2 + 1])
-            for i in range(len(end_positions) // 2 + 1, len(end_positions)):
-                line2.append(end_positions[i])
 
         self.track_line1_points = line1
         self.track_line2_points = line2
@@ -76,7 +71,6 @@ class Track:
             self.sectors[y_sector][x_sector].append((x, y))
 
 
-
     def draw_track(self, camera):
         track_line_color = (62, 67, 74)
         line_thickness = 7
@@ -100,3 +94,43 @@ class Track:
 
             if self.position != camera.get_position:
                 self.initialize_line_sector((x1, y1), (x2, y2))
+
+        self.back_button.draw(self.screen)
+        self.stat_button.button_width = 100
+        self.stat_button.button_height = 45
+        self.stat_button.font_size = constants.SMALL_FONT
+        self.stat_button.draw(self.screen)
+
+def prepare_lines(mapa):
+    half = mapa.index(constants.HALF)
+    line1 = mapa[:half]
+    line2 = mapa[half + 1:]
+
+    for i in range(0, len(line1) - 2):
+        if line1[i][0] == line1[i + 1][0]:
+            line1.remove(line1[i])
+
+    for i in range(0, len(line2) - 2):
+        if line2[i][0] == line2[i + 1][0]:
+            line2.remove(line2[i])
+
+    return line1, line2
+
+# def add_track_point(self, point):
+#
+#     pygame.draw.line(self.screen, self.green,
+#                      self.previous_point, point, 5)
+#
+#     self.track_line1_points.append(point)
+#     (x1, y1) = self.previous_point
+#     (x2, y2) = point
+#
+#     a = (y2 - y1) / (x2 - x1)
+#
+#     for x in range(x1, x2):
+#         y = a * (x - x1) + y1
+#         x, y = int(x), int(y)
+#         self.grid[x, y] = 1
+#
+#     self.previous_point = point
+
