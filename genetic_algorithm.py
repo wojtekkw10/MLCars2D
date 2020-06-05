@@ -36,7 +36,6 @@ class GeneticAlgorithm:
             del(self.population[0])
         self.population.extend(self.toolbox.population(n=number_of_individuals_to_replace))
 
-
     def select_best(self, k):
         _top = tools.selBest(self.population, k=k)
         return _top

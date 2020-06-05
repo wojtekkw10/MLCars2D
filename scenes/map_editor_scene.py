@@ -35,9 +35,9 @@ class MapEditor:
                              keyboard_events.line2[i + 1], 5)
 
     def handle_keyboard(self, keyboardEvents):
-        if keyboardEvents.isPressed(mapped_key('s')):
+        if keyboardEvents.is_pressed(mapped_key('s')):
             files_ops.save_map(keyboardEvents.line1, keyboardEvents.line2)
-        if keyboardEvents.isPressed(mapped_key('l')):
+        if keyboardEvents.is_pressed(mapped_key('l')):
             mapa = files_ops.load_map()
             half = mapa.index(constants.HALF)
             keyboardEvents.line1 = mapa[:half]

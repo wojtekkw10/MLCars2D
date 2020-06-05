@@ -69,9 +69,4 @@ class CarNeuralNetwork:
         return weight_arr
 
 
-car_brain = CarNeuralNetwork(1, [3, 4, 4, 2])
-distances = [0, 3, 2]
-car_brain.calc(distances)
-
-
 

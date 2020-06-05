@@ -2,10 +2,13 @@ import pygame as pg
 import constants
 import sys
 
+from gameObjects.button import Button
+
 
 class StatBox:
 
-    def __init__(self, win, x_pos, y_pos, width, height, padding, color=[(50, 100, 150), (50, 50, 100), (255, 255, 255)]):
+    def __init__(self, win, x_pos, y_pos, width, height, padding,
+                 color=[(50, 100, 150), (50, 50, 100), (255, 255, 255)]):
         self.win = win
         self.color = color
         self.x_pos = x_pos
@@ -20,6 +23,8 @@ class StatBox:
         self.stat_y = y_pos + self.padding
         self.stat_height = height - 2 * self.padding
         self.stat_width = width - 2 * self.padding
+        self.hidden = False
+        self.stat_button = Button(self.x_pos + self.width - 60, 265, "hide")
 
     def new_score(self, fitness):
         self.fitness_list.append(fitness)
@@ -37,19 +42,28 @@ class StatBox:
                         (1 - fit_list[i] / self.highest_fitness))
             self.fitness_points.append([fit_x, fit_y])
 
-    def display(self):
-        pg.draw.rect(
-            self.win, self.color[0], (self.x_pos, self.y_pos, self.width, self.height))
-        pg.draw.rect(self.win, self.color[1], (self.stat_x,
-                                               self.stat_y, self.stat_width, self.stat_height))
-        pg.draw.rect(self.win, self.color[2],
-                     (self.stat_x - 1, self.stat_y - 1, self.stat_width + 2, self.stat_height + 2), 3)
+    def clear_score(self):
+        self.fitness_list = []
+        self.fitness_points = []
+        self.highest_fitness = 0
 
-        for i in range(len(self.fitness_points) - 1):
-            pg.draw.line(self.win, self.color[2], (self.fitness_points[i][0], self.fitness_points[i][1]),
-                         (self.fitness_points[i + 1][0],
-                          self.fitness_points[i + 1][1]),
-                         2)
+    def display(self):
+        if not self.hidden:
+            pg.draw.rect(
+                self.win, self.color[0], (self.x_pos, self.y_pos, self.width, self.height))
+            pg.draw.rect(self.win, self.color[1], (self.stat_x,
+                                                   self.stat_y, self.stat_width, self.stat_height))
+            pg.draw.rect(self.win, self.color[2],
+                         (self.stat_x - 1, self.stat_y - 1, self.stat_width + 2, self.stat_height + 2), 3)
+
+            for i in range(len(self.fitness_points) - 1):
+                pg.draw.line(self.win, self.color[2], (self.fitness_points[i][0], self.fitness_points[i][1]),
+                             (self.fitness_points[i + 1][0],
+                              self.fitness_points[i + 1][1]),
+                             2)
+
+
+
 
 
 # example

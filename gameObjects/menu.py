@@ -3,6 +3,7 @@ from gameObjects.button import Button
 
 
 class Menu:
+
     def __init__(self, screen, window_width, window_height):
         self.screen = screen
         self.window_width = window_width

@@ -39,7 +39,7 @@ class GameObjectsController:
             x = -target_rect.center[0] + window_width / 2
             y = -target_rect.center[1] + window_height / 2
             # move the camera. Let's use some vectors so we can easily substract/multiply
-            # add some smoothness coolnes
+            # add some smoothness coolness
             camera.topleft += (pygame.Vector2((x, y)) -
                                pygame.Vector2(camera.topleft)) * 0.06
             # set max/min x/y so we don't see stuff outside the world
@@ -87,8 +87,10 @@ class GameObjectsController:
         background_color = (186, 193, 204)
         self.screen.fill(background_color)
         self.track.draw_track(self.camera)
+        other_cars = []
         for car in self.cars:
-            car.draw(self.screen, self.camera)
+            if car.draw(self.screen, self.camera, other_cars):
+                other_cars.append(car)
 
     def check_pressed_buttons(self, event):
         if self.actual_menu == constants.MAIN_MENU:
@@ -106,6 +108,9 @@ class GameObjectsController:
         elif self.actual_menu == constants.PLAY_MENU:
             button = self.track.back_button
             button.check_is_button_pressed(event, self.screen)
+            button = self.track.stat_button
+            button.check_is_button_pressed(event, self.screen)
+
 
     def perform_action(self, keyboardEvents):
         for button_label in self.menu.buttons:
@@ -129,6 +134,7 @@ class GameObjectsController:
                 if button_label == "custom_map":
                     self.options_custom_map_button_action()
 
+
         for button_label in self.map_editor_scene.buttons:
             button = self.map_editor_scene.buttons.get(button_label)
             if button.is_button_pressed:
@@ -140,32 +146,23 @@ class GameObjectsController:
         if self.track.back_button.is_button_pressed:
             self.go_back_to_menu()
 
+        if self.track.stat_button.is_button_pressed:
+            if self.stat_box.hidden == False:
+                self.track.stat_button.label = "Show"
+                self.stat_box.hidden = True
+            else:
+                self.track.stat_button.label = "Hide"
+                self.stat_box.hidden = False
+            self.track.stat_button.is_button_pressed = False
+
+
+
+
     def update_simulation(self):
-        # self.camera.update(self.cars[0])
         for car in self.cars:
-            # car.handle_keyboard(keyboardEvents)
             car.handle_neural_network()
             car.update(self.camera)
-
-            car_position_x, car_position_y = int(
-                car.position_x), int(car.position_y)
-            car.detect_collision(self.track.grid, self.track.sectors)
-
-    def car_updating_thread(self, car, number_of_updates):
-        for _ in range(number_of_updates):
-            car.handle_neural_network()
-            car.update(self.camera)
-            car.detect_collision(self.track.grid, self.track.sectors)
-
-    def multithreaded_update_simulation(self, number_of_updates):
-        threads = []
-        for car in self.cars:
-            t = threading.Thread(
-                target=self.car_updating_thread, args=(car, number_of_updates))
-            threads.append(t)
-            t.start()
-        for thread in threads:
-            thread.join()
+            car.detect_collision(self.track.sectors)
 
     # -----------------------------buttons actions------------------------------------------
     def map_editor_button_action(self, keyboard_events):
@@ -190,6 +187,7 @@ class GameObjectsController:
     def options_button_action(self, keyboard_events):
         self.options_scene.update(keyboard_events)
         self.options_scene.draw(self.screen)
+
 
     def options_custom_map_button_action(self):
         button = self.options_scene.buttons.get("custom_map")

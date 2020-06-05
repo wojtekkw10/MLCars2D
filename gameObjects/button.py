@@ -1,6 +1,9 @@
 import pygame
 import constants
 
+
+import constants
+
 class Button:
     BG_COLOR = 255, 255, 255
     ACTIVE_COLOR = 211, 211, 211
@@ -46,5 +49,3 @@ class Button:
                 return True
 
         return False
-
-

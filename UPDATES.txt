@@ -92,3 +92,20 @@ Co planujemy?
 Co nas blokuje?
  - Nic
 
+28.05.2020
+Co zrobiliśmy?
+ - Podpięcie rysowania statystyk
+ - Poprawienie zapisywania populacji do pliku
+ - Zmiana projektu sieci oraz algorytmu genetycznego
+ - Dynamiczna konfiguracja symulacji
+ - Podłączenie edytora
+Czego nie udało się zrobić?
+ - Poprawienie liczenia sensorów
+Co planujemy?
+ - Wycentrowanie rysowania autek z sensorami - Kuba
+ - Dodanie podpowiedzi w oknie symulacji - Patryk
+ - Poprawienie liczenia sensorów + optymalizacje  - Paweł
+ - Wycięcie niepotrzebnego kodu + mała refaktoryzacja - Wojtek
+ - Poprawki w edytorze map - Mateusz
+Co nas blokuje?
+ - Nic
