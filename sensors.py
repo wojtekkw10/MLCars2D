@@ -1,18 +1,18 @@
 import pygame
 from math import cos, sin, sqrt
 from angle import Angle
+import constants
 
-SENSOR_WIDTH_INITAL = 90
-SENSORS_COLOR_INACTIVE = pygame.Color(50, 120, 255, a=100)
-SENSORS_COLOR_ACTIVE = pygame.Color(255, 90, 70, a=100)
+SENSOR_WIDTH_INITIAL = 90
+SENSORS_COLOR_INACTIVE = pygame.Color(33, 0, 166)
+SENSORS_COLOR_ACTIVE = pygame.Color(255, 80, 53)
 
 
 def calculate_vector(origin, radians, sensor_size):
     return pygame.Vector2(cos(radians)*sensor_size + origin.x, sin(radians)*sensor_size + origin.y)
 
 
-def determine_line_end(grid, origin, line):
-
+def determine_line_end(sectors, origin, line):
     if abs(origin.x - line.x) > abs(origin.y-line.y):
         if origin.x < line.x:
             (x1, y1) = origin
@@ -26,11 +26,20 @@ def determine_line_end(grid, origin, line):
         for x in range(int(x1), int(x2)):
             y = a * (x - x1) + y1
             x, y = int(x), int(y)
+
             try:
-                if grid[x, y]:  # more precise
+                x_sector = x // constants.X_SECTOR_SIZE
+                y_sector = y // constants.Y_SECTOR_SIZE
+                if (x, y) in sectors[y_sector][x_sector]:
                     return pygame.Vector2(x, y), True
-            except IndexError:  # run out of track grid
+            except IndexError:
                 pass
+
+            # try:
+            #     if grid[x, y]:  # more precise
+            #         return pygame.Vector2(x, y), True
+            # except IndexError:  # run out of track grid
+            #     pass
     else:
         if origin.y < line.y:
             (x1, y1) = origin
@@ -44,17 +53,26 @@ def determine_line_end(grid, origin, line):
         for y in reversed(range(int(y1), int(y2))):
             x = a * (y - y1) + x1
             x, y = int(x), int(y)
+
+            x_sector = x // constants.X_SECTOR_SIZE
+            y_sector = y // constants.Y_SECTOR_SIZE
             try:
-                if grid[x, y]:  # more precise
+                if (x, y) in sectors[y_sector][x_sector]:
                     return pygame.Vector2(x, y), True
-            except IndexError:  # run out of track grid
+            except IndexError:
                 pass
+
+            # try:
+            #     if grid[x, y]:  # more precise
+            #         return pygame.Vector2(x, y), True
+            # except IndexError:  # run out of track grid
+            #     pass
 
     return line, False
 
 
 class SensorData:
-    def __init__(self, vector=(pygame.Vector2(0, 0)), detected=False, sensor_size=SENSOR_WIDTH_INITAL):
+    def __init__(self, vector=(pygame.Vector2(0, 0)), detected=False, sensor_size=SENSOR_WIDTH_INITIAL):
         super().__init__()
         self.update_vector(vector)
         self.detected = detected
@@ -73,7 +91,7 @@ class SensorData:
 
     @property
     def detection(self):
-        return (self.detected, self.distance)
+        return self.detected, self.distance
 
     @property
     def vector(self):
@@ -100,16 +118,16 @@ class Sensors:
 
     def setup_sensors(self, angle, origin):
         self.origin = origin
-        offset = -60
+        offset = -62
         for line in self.lines:
             self.detected[line].update_vector(calculate_vector(
                 origin, -Angle(angle.degree + offset).radians, self.detected[line].sensor_size))
-            offset += 30
+            offset += 31
 
-    def check_collision(self, grid):
+    def check_collision(self, sectors):
         for line in self.lines:
             vector, detected = determine_line_end(
-                grid, self.origin, self.detected[line].vector)
+                sectors, self.origin, self.detected[line].vector)
 
             self.detected[line].update_vector(vector)
             self.detected[line].update_detection_distance(self.origin)
@@ -121,15 +139,18 @@ class Sensors:
             line_vector = self.detected[line].vector
             line_vector = camera.apply_on_line(line_vector)
 
+            start_pos = (origin.x, origin.y)
+            end_pos = (line_vector.x, line_vector.y)
             if self.detected[line].detected:
-                pygame.draw.aaline(surface, SENSORS_COLOR_ACTIVE, (origin.x,
-                                                                   origin.y), (line_vector.x, line_vector.y), 2)
+                pygame.draw.aaline(
+                    surface, SENSORS_COLOR_ACTIVE, start_pos, end_pos, 2)
             else:
-                pygame.draw.aaline(surface, SENSORS_COLOR_INACTIVE, (origin.x,
-                                                                     origin.y), (line_vector.x, line_vector.y), 2)
+                pygame.draw.aaline(
+                    surface, SENSORS_COLOR_INACTIVE, start_pos, end_pos, 2)
 
     def get_states_of_sensors(self):
         distances = []
         for line in self.lines:
-            distances.append((self.detected[line].distance, self.detected[line].detected))
+            distances.append(
+                (self.detected[line].distance, self.detected[line].detected))
         return distances

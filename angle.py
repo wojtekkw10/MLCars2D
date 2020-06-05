@@ -12,9 +12,9 @@ class Angle:
 
     @degree.setter
     def degree(self, angle):
-        if(angle >= 360):
+        if angle >= 360:
             self.__angle = angle % 360
-        elif(angle < 0):
+        elif angle < 0:
             self.__angle = 360 - self.__angle
         else:
             self.__angle = angle
@@ -22,8 +22,3 @@ class Angle:
     @property
     def radians(self):
         return radians(self.__angle)
-
-# angle = Angle(90)
-# angle.degree
-# angle.radians
-# angle.degree = 180

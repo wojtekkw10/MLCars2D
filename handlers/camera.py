@@ -20,5 +20,5 @@ class Camera(object):
     def update(self, target):
         self.state = self.camera_func(self.state, target.rect)
 
-    def get_state(self):
+    def get_position(self):
         return self.state.topleft

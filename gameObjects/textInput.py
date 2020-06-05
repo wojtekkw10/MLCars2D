@@ -10,7 +10,7 @@ class TextInput:
     def __init__(self, x, y, width, height, mode="Text"):
         self.input_box = pygame.Rect(
             x, y, width, height)
-        self.text_buffor = ""
+        self.text_buffer = ""
         self.color = TextInput.COLOR_INACTIVE
         self.input_active = False
         self.mode = mode
@@ -25,20 +25,20 @@ class TextInput:
                 self.color = TextInput.COLOR_INACTIVE
 
         if self.input_active:
-            if keyboard_events.isPressed(pygame.K_RETURN):
-                self.text_buffor = ""
-            elif keyboard_events.isPressed(pygame.K_BACKSPACE):
-                self.text_buffor = self.text_buffor[:-1]
-            elif keyboard_events.unicode_buffor != None:
+            if keyboard_events.is_pressed(pygame.K_RETURN):
+                self.text_buffer = ""
+            elif keyboard_events.is_pressed(pygame.K_BACKSPACE):
+                self.text_buffer = self.text_buffer[:-1]
+            elif keyboard_events.unicode_buffor is not None:
                 nums = [f"{i}" for i in range(10)]
                 if self.mode == TextInput.NUMBER_MODE:
                     if keyboard_events.unicode_buffor in nums:
-                        self.text_buffor += keyboard_events.unicode_buffor
+                        self.text_buffer += keyboard_events.unicode_buffor
                 else:
-                    self.text_buffor += keyboard_events.unicode_buffor
+                    self.text_buffer += keyboard_events.unicode_buffor
 
     def draw(self, screen, font):
-        txt_surface = font.render(self.text_buffor, True, self.color)
+        txt_surface = font.render(self.text_buffer, True, self.color)
         # Resize the box if the text is too long.
         width = max(200, txt_surface.get_width()+10)
         self.input_box.w = width
