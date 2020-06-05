@@ -7,8 +7,7 @@ from gameObjects.button import Button
 
 class StatBox:
 
-    def __init__(self, win, x_pos, y_pos, width, height, padding,
-                 color=[(50, 100, 150), (50, 50, 100), (255, 255, 255)]):
+    def __init__(self, win, x_pos, y_pos, width, height, padding, color=[(50, 100, 150), (50, 50, 100), (255, 255, 255), (200, 200, 255), (255, 200, 220)]):
         self.win = win
         self.color = color
         self.x_pos = x_pos
@@ -57,13 +56,14 @@ class StatBox:
                          (self.stat_x - 1, self.stat_y - 1, self.stat_width + 2, self.stat_height + 2), 3)
 
             for i in range(len(self.fitness_points) - 1):
-                pg.draw.line(self.win, self.color[2], (self.fitness_points[i][0], self.fitness_points[i][1]),
-                             (self.fitness_points[i + 1][0],
-                              self.fitness_points[i + 1][1]),
-                             2)
-
-
-
+                if self.fitness_points[i+1][1] - self.fitness_points[i][1] < 0:
+                    pg.draw.aaline(self.win, self.color[3], (self.fitness_points[i][0], self.fitness_points[i][1]),
+                                   (self.fitness_points[i + 1][0],
+                                    self.fitness_points[i + 1][1]),
+                                   2)
+                else:
+                    pg.draw.aaline(self.win, self.color[4], (self.fitness_points[i][0], self.fitness_points[i][1]), (
+                        self.fitness_points[i + 1][0], self.fitness_points[i + 1][1]), 2)
 
 
 # example
